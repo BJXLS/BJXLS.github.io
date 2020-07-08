@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>FREE BJXLS</title>
+  <icon>http://yoursite.com/avatar.png</icon>
+  <subtitle>燃烧、燃烧</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2020-07-08T10:17:54.396Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>BJXLS</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Test article1</title>
+    <link href="http://yoursite.com/2020/07/08/Test-article1/"/>
+    <id>http://yoursite.com/2020/07/08/Test-article1/</id>
+    <published>2020-07-08T10:12:50.000Z</published>
+    <updated>2020-07-08T10:17:54.396Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;h1 id=&quot;This-is-a-test-article&quot;&gt;&lt;a href=&quot;#This-is-a-test-article&quot; class=&quot;headerlink&quot; title=&quot;This is a test article&quot;&gt;&lt;/a&gt;This is a test
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://yoursite.com/2020/07/08/hello-world/"/>
+    <id>http://yoursite.com/2020/07/08/hello-world/</id>
+    <published>2020-07-08T05:26:29.053Z</published>
+    <updated>2020-07-08T05:26:29.053Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+</feed>
