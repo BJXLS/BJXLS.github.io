@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2020-07-08T10:17:54.396Z</updated>
+  <updated>2020-07-09T05:20:01.213Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,26 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>Test article1</title>
-    <link href="http://yoursite.com/2020/07/08/Test-article1/"/>
-    <id>http://yoursite.com/2020/07/08/Test-article1/</id>
-    <published>2020-07-08T10:12:50.000Z</published>
-    <updated>2020-07-08T10:17:54.396Z</updated>
+    <title>archive</title>
+    <link href="http://yoursite.com/2020/07/09/archive/"/>
+    <id>http://yoursite.com/2020/07/09/archive/</id>
+    <published>2020-07-09T05:20:01.000Z</published>
+    <updated>2020-07-09T05:20:01.213Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>test article</title>
+    <link href="http://yoursite.com/2020/07/09/test-article/"/>
+    <id>http://yoursite.com/2020/07/09/test-article/</id>
+    <published>2020-07-09T05:09:54.000Z</published>
+    <updated>2020-07-09T07:52:20.130Z</updated>
     
     <summary type="html">
     
@@ -29,13 +44,49 @@
       
         
         
-          &lt;h1 id=&quot;This-is-a-test-article&quot;&gt;&lt;a href=&quot;#This-is-a-test-article&quot; class=&quot;headerlink&quot; title=&quot;This is a test article&quot;&gt;&lt;/a&gt;This is a test
+          
+        &lt;h1 id=&quot;h1&quot;   &gt;
+          &lt;a href=&quot;#h1&quot; class=&quot;heading-link&quot;&gt;&lt;i class=&quot;fas fa-link&quot;&gt;&lt;/i&gt;&lt;/a&gt;h1&lt;/h1&gt;
+      &lt;p&gt;这是测试blog&lt;/p&gt;
+
+       
         
       
     
     </summary>
     
     
+      <category term="hexo_test" scheme="http://yoursite.com/categories/hexo-test/"/>
+    
+    
+      <category term="test" scheme="http://yoursite.com/tags/test/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Test article1</title>
+    <link href="http://yoursite.com/2020/07/08/Test-article1/"/>
+    <id>http://yoursite.com/2020/07/08/Test-article1/</id>
+    <published>2020-07-08T10:12:50.000Z</published>
+    <updated>2020-07-09T04:51:17.879Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          
+        &lt;h1 id=&quot;This-is-a-test-article&quot;   &gt;
+          &lt;a href=&quot;#This-is-a-test-article&quot; class=&quot;heading-link&quot;&gt;&lt;i class=&quot;fas
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="test" scheme="http://yoursite.com/tags/test/"/>
     
   </entry>
   
@@ -52,7 +103,7 @@
       
         
         
-          &lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a
+          &lt;p&gt;Welcome to &lt;span class=&quot;exturl&quot;&gt;&lt;a class=&quot;exturl__link&quot;   href=&quot;https://hexo.io/&quot;  target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;&lt;span
         
       
     
