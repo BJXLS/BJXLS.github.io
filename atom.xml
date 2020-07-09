@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>FREE BJXLS</title>
-  <icon>http://yoursite.com/avatar.png</icon>
+  <icon>http://bjxls.github.io/avatar.png</icon>
   <subtitle>燃烧、燃烧</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2020-07-09T05:20:01.213Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://bjxls.github.io/"/>
+  <updated>2020-07-09T11:19:31.813Z</updated>
+  <id>http://bjxls.github.io/</id>
   
   <author>
     <name>BJXLS</name>
@@ -17,26 +17,11 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>archive</title>
-    <link href="http://yoursite.com/2020/07/09/archive/"/>
-    <id>http://yoursite.com/2020/07/09/archive/</id>
-    <published>2020-07-09T05:20:01.000Z</published>
-    <updated>2020-07-09T05:20:01.213Z</updated>
-    
-    <summary type="html">
-    
-    </summary>
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>test article</title>
-    <link href="http://yoursite.com/2020/07/09/test-article/"/>
-    <id>http://yoursite.com/2020/07/09/test-article/</id>
-    <published>2020-07-09T05:09:54.000Z</published>
-    <updated>2020-07-09T07:52:20.130Z</updated>
+    <title>Hello World!</title>
+    <link href="http://bjxls.github.io/2020/07/09/Hello-World/"/>
+    <id>http://bjxls.github.io/2020/07/09/Hello-World/</id>
+    <published>2020-07-09T11:16:32.000Z</published>
+    <updated>2020-07-09T11:19:31.813Z</updated>
     
     <summary type="html">
     
@@ -44,72 +29,18 @@
       
         
         
-          
-        &lt;h1 id=&quot;h1&quot;   &gt;
-          &lt;a href=&quot;#h1&quot; class=&quot;heading-link&quot;&gt;&lt;i class=&quot;fas fa-link&quot;&gt;&lt;/i&gt;&lt;/a&gt;h1&lt;/h1&gt;
-      &lt;p&gt;这是测试blog&lt;/p&gt;
-
-       
+          &lt;p&gt;​		欢迎！这里是“BJXLS的思维空间”。我是一个blog新人，接下来我会在这里陆陆续续发布自己的编程学习文章。同时不定期也会发布自己对待一些事情的看法。希望自己多多加油，也希望大家多多支持。如果喜欢本站点，可以分享给身边的小伙伴。如果有问题欢迎大家留言。&lt;/p&gt;
+&lt;sc
         
       
     
     </summary>
     
     
-      <category term="hexo_test" scheme="http://yoursite.com/categories/hexo-test/"/>
+      <category term="随笔" scheme="http://BJXLS.github.io/categories/%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="test" scheme="http://yoursite.com/tags/test/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Test article1</title>
-    <link href="http://yoursite.com/2020/07/08/Test-article1/"/>
-    <id>http://yoursite.com/2020/07/08/Test-article1/</id>
-    <published>2020-07-08T10:12:50.000Z</published>
-    <updated>2020-07-09T04:51:17.879Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          
-        &lt;h1 id=&quot;This-is-a-test-article&quot;   &gt;
-          &lt;a href=&quot;#This-is-a-test-article&quot; class=&quot;heading-link&quot;&gt;&lt;i class=&quot;fas
-        
-      
-    
-    </summary>
-    
-    
-    
-      <category term="test" scheme="http://yoursite.com/tags/test/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Hello World</title>
-    <link href="http://yoursite.com/2020/07/08/hello-world/"/>
-    <id>http://yoursite.com/2020/07/08/hello-world/</id>
-    <published>2020-07-08T05:26:29.053Z</published>
-    <updated>2020-07-08T05:26:29.053Z</updated>
-    
-    <summary type="html">
-    
-      
-      
-        
-        
-          &lt;p&gt;Welcome to &lt;span class=&quot;exturl&quot;&gt;&lt;a class=&quot;exturl__link&quot;   href=&quot;https://hexo.io/&quot;  target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Hexo&lt;/a&gt;&lt;span
-        
-      
-    
-    </summary>
-    
-    
+      <category term="-随笔" scheme="http://BJXLS.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
