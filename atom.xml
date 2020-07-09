@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>FREE BJXLS</title>
-  <icon>http://bjxls.github.io/avatar.png</icon>
+  <icon>http://yoursite.com/avatar.png</icon>
   <subtitle>燃烧、燃烧</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://bjxls.github.io/"/>
+  <link href="http://yoursite.com/"/>
   <updated>2020-07-09T11:19:31.813Z</updated>
-  <id>http://bjxls.github.io/</id>
+  <id>http://yoursite.com/</id>
   
   <author>
     <name>BJXLS</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>Hello World!</title>
-    <link href="http://bjxls.github.io/2020/07/09/Hello-World/"/>
-    <id>http://bjxls.github.io/2020/07/09/Hello-World/</id>
+    <link href="http://yoursite.com/2020/07/09/Hello-World/"/>
+    <id>http://yoursite.com/2020/07/09/Hello-World/</id>
     <published>2020-07-09T11:16:32.000Z</published>
     <updated>2020-07-09T11:19:31.813Z</updated>
     
@@ -37,10 +37,10 @@
     </summary>
     
     
-      <category term="随笔" scheme="http://BJXLS.github.io/categories/%E9%9A%8F%E7%AC%94/"/>
+      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="-随笔" scheme="http://BJXLS.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
+      <category term="-随笔" scheme="http://yoursite.com/tags/%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
