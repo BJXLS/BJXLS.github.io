@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>FREE BJXLS</title>
-  <icon>http://yoursite.com/avatar.png</icon>
+  <icon>http://bjxls.github.io/avatar.png</icon>
   <subtitle>燃烧、燃烧</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
-  <updated>2020-07-09T11:19:31.813Z</updated>
-  <id>http://yoursite.com/</id>
+  <link href="http://bjxls.github.io/"/>
+  <updated>2020-07-25T15:43:27.796Z</updated>
+  <id>http://bjxls.github.io/</id>
   
   <author>
     <name>BJXLS</name>
@@ -17,9 +17,32 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译</title>
+    <link href="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/"/>
+    <id>http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/</id>
+    <published>2020-07-25T15:17:12.000Z</published>
+    <updated>2020-07-25T15:43:27.796Z</updated>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34.9的联合得分，而最佳竞争对手的得分为23.6。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="论文翻译" scheme="http://BJXLS.github.io/categories/%E8%AE%BA%E6%96%87%E7%BF%BB%E8%AF%91/"/>
+    
+    
+      <category term="QA" scheme="http://BJXLS.github.io/tags/QA/"/>
+    
+      <category term="NLP" scheme="http://BJXLS.github.io/tags/NLP/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hello World!</title>
-    <link href="http://yoursite.com/2020/07/09/Hello-World/"/>
-    <id>http://yoursite.com/2020/07/09/Hello-World/</id>
+    <link href="http://bjxls.github.io/2020/07/09/Hello-World/"/>
+    <id>http://bjxls.github.io/2020/07/09/Hello-World/</id>
     <published>2020-07-09T11:16:32.000Z</published>
     <updated>2020-07-09T11:19:31.813Z</updated>
     
@@ -37,10 +60,10 @@
     </summary>
     
     
-      <category term="随笔" scheme="http://yoursite.com/categories/%E9%9A%8F%E7%AC%94/"/>
+      <category term="随笔" scheme="http://BJXLS.github.io/categories/%E9%9A%8F%E7%AC%94/"/>
     
     
-      <category term="-随笔" scheme="http://yoursite.com/tags/%E9%9A%8F%E7%AC%94/"/>
+      <category term="-随笔" scheme="http://BJXLS.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
     
   </entry>
   
