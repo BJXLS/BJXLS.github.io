@@ -1,70 +1,177 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/laptop16.svg?v=2.1.1" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/laptop32.svg?v=2.1.1" type="image/png" sizes="32x32"><meta name="description" content="我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译">
-<meta property="og:url" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/index.html">
-<meta property="og:site_name" content="FREE BJXLS">
-<meta property="og:description" content="我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34">
-<meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724205057025.png">
-<meta property="og:image" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724210516818.png">
-<meta property="og:image" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724211418178.png">
-<meta property="og:image" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724221309286.png">
-<meta property="og:image" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724221811000.png">
-<meta property="article:published_time" content="2020-07-25T15:17:12.000Z">
-<meta property="article:modified_time" content="2020-07-25T15:43:27.796Z">
-<meta property="article:author" content="BJXLS">
-<meta property="article:tag" content="QA">
-<meta property="article:tag" content="NLP">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724205057025.png"><title>Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译 | FREE BJXLS</title><link ref="canonical" href="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/"><link rel="alternate" href="/atom.xml" type="application/atom+xml"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.1.1"><link rel="dns-prefetch" href="https://hm.baidu.com"><script>var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement('script');
-  hm.src = 'https://hm.baidu.com/hm.js?fa3e8209f6ee71a5579d75c8bcc87c5c';
-  hm.async = true;
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS的思维空间">
+  <meta name="keyword" content="hexo-theme, vuejs">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译 | FREE BJXLS
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
 
-  if (true) {
-    hm.setAttribute('data-pjax', '');
-  }
-  var s = document.getElementsByTagName('script')[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();</script><script>var Stun = window.Stun || {};
-var CONFIG = {
-  root: '/',
-  algolia: undefined,
-  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
-  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
-  header: undefined,
-  postWidget: {"endText":true},
-  nightMode: {"enable":true},
-  back2top: {"enable":true},
-  codeblock: {"style":"default","highlight":"light","wordWrap":"ocean"},
-  reward: true,
-  fancybox: false,
-  zoomImage: {"gapAside":"20px"},
-  galleryWaterfall: undefined,
-  lazyload: false,
-  pjax: {"avoidBanner":false},
-  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
-  shortcuts: undefined,
-  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
-  sourcePath: {"js":"js","css":"css","images":"images"},
-};
+  
+    
+<link rel="stylesheet" href="/css/plugins/gitment.css">
 
-window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 4.2.1"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner header-inner--height header-inner--bgcolor"><nav class="header-nav header-nav--sticky"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2020-07-25</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2020-07-25</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">3k</span></span></div></header><div class="post-body"><p>我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34.9的联合得分，而最佳竞争对手的得分为23.6。</p>
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+    
+<script src="/js/gitment.js"></script>
+
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+<meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="FREE BJXLS" type="application/atom+xml">
+</head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>FREE BJXLS</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译</h2>
+  <p class="post-date">2020-07-25</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><p>我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34.9的联合得分，而最佳竞争对手的得分为23.6。</p>
 <a id="more"></a>
 <blockquote>
-<p>原文：<span class="exturl"><a class="exturl__link" href="https://arxiv.org/abs/1905.05460" target="_blank" rel="noopener">https://arxiv.org/abs/1905.05460</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
-<p>代码：<span class="exturl"><a class="exturl__link" href="https://github.com/THUDM/CogQA" target="_blank" rel="noopener">https://github.com/THUDM/CogQA</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p>原文：<a href="https://arxiv.org/abs/1905.05460" target="_blank" rel="noopener">https://arxiv.org/abs/1905.05460</a></p>
+<p>代码：<a href="https://github.com/THUDM/CogQA" target="_blank" rel="noopener">https://github.com/THUDM/CogQA</a></p>
 </blockquote>
-
-        <h1 id="abstract">
-          <a href="#abstract" class="heading-link"><i class="fas fa-link"></i></a>Abstract</h1>
-      
+<h1 id="abstract"><a class="markdownIt-Anchor" href="#abstract"></a> Abstract</h1>
 <p>​		我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34.9的联合得分，而最佳竞争对手的得分为23.6</p>
-
-        <h1 id="1-introduction">
-          <a href="#1-introduction" class="heading-link"><i class="fas fa-link"></i></a>1 Introduction</h1>
-      
+<h1 id="1-introduction"><a class="markdownIt-Anchor" href="#1-introduction"></a> 1 Introduction</h1>
 <p>​		然而，要跨越人机阅读理解能力的鸿沟，面临三大挑战：</p>
 <p>1）推理能力。从对敌测试中可以看出，单段问答模式倾向于在与问题相匹配的句子中寻找答案，不涉及复杂的推理。因此，多跳QA将成为下一个需要征服的领域。</p>
 <p>2）可解释性。显式的推理路径能够验证逻辑的严密性，这对QA系统的可靠性至关重要。HotpotQA要求模型提供支持句子，这意味着无序和句子级的可解释性，而人类可以用一步一步的解决方案来解释答案，说明具有有序和实体级的可解释性。</p>
@@ -75,90 +182,45 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 4.2.1"></he
 <p><em><strong>•我们提出了新的CogQA框架，用于基于人类认知的大规模多跳阅读理解QA。</strong></em></p>
 <p><em><strong>•我们表明，在我们的框架中的认知图结构提供了有序和实体层次的可解释性，并适合关系推理。</strong></em></p>
 <p><em><strong>•我们基于BERT和GNN的实现在所有指标上都大大超过了之前的工作和其他竞争对手</strong></em></p>
-
-        <h1 id="2-cognitive-graph-qa-framework">
-          <a href="#2-cognitive-graph-qa-framework" class="heading-link"><i class="fas fa-link"></i></a>2 Cognitive Graph QA Framework</h1>
-      
+<h1 id="2-cognitive-graph-qa-framework"><a class="markdownIt-Anchor" href="#2-cognitive-graph-qa-framework"></a> 2 Cognitive Graph QA Framework</h1>
 <p>​		人类的推理能力主要依赖于信息的关系结构。直观上，我们采用一种有向图结构，在多跳问答的认知过程中进行逐级推理和探索。在我们的阅读理解设置中，认知图G中的每个节点对应一个实体或可能的答案x，也可互换表示为节点x。提取模块System 1，读取实体x的引言段落第[x]段，并从该段落中提取候选答案和有用的下一跳实体。然后用这些新节点扩展G，为推理模块系统2提供显式结构。在本文中，我们假设System 2通过计算节点的隐藏表示X来进行基于深度学习的推理，而不是基于规则的推理。因此，在提取跨度时，系统1还需要将para[x]总结为语义向量作为初始隐藏表示。然后系统2根据图结构更新X作为下游预测的推理结果。</p>
 <p>​		可解释性是由于认知图中明确的推理路径而享有的。除了简单的路径外，认知图还可以清楚地显示出联合或循环的推理过程，在这个过程中，新的前辈可能会为答案带来新的线索。我们的框架中的线索是一个形式灵活的概念，参考前人的信息来指导System 1更好地提取跨度。除了新添加的节点，那些有新传入边的节点也需要由于新的线索而重新访问。我们把它们都称为边界节点。</p>
 <p>​		可伸缩性意味着QA的时间消耗不会随着段落数量的增加而显著增加。我们的框架在本质上可以伸缩，因为引用所有段落的唯一操作是通过标题索引访问某些特定的段落。对于多跳问题，传统的检索-提取框架可能会牺牲后续模型的潜力，因为离问题多跳的段落可能很少有共同的词和与问题的语义关系，导致检索失败。然而，这些段落可以通过我们的框架中线索的迭代扩展来发现。</p>
 <p>​		算法1描述了我们的CogQA框架的过程。初始化之后，开始了图展开和推理的迭代过程。每一步访问一个前沿节点x，系统1在线索和问题Q的引导下读取para[x]，提取跨度并生成语义向量sem[x;问;线索)。同时，系统2更新隐藏表示X并准备线索[y];G]对于任意后继节点y，最终的预测基于X.</p>
 <img src="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724205057025.png" alt="image-20200724205057025" style="zoom: 67%;">
-
-        <h1 id="3-implementation">
-          <a href="#3-implementation" class="heading-link"><i class="fas fa-link"></i></a>3 Implementation</h1>
-      
+<h1 id="3-implementation"><a class="markdownIt-Anchor" href="#3-implementation"></a> 3 Implementation</h1>
 <p>​		CogQA框架实施的主要部分是确定系统1和系统2的具体模型以及线索的形式。</p>
 <p>我们的实现使用BERT作为系统1，GNN为系统2。与此同时,线索[x;G]是x的前节点的段落中的句子，从其中提取出x。我们直接通过原始的句子作为线索，而不是任何形式的计算隐藏状态，以便于对System 1进行简单的训练。由于原始句子是自包含的，独立于之前迭代步骤的计算，因此在不同迭代步骤上的训练就可以解耦，从而在训练过程中提高效率。详细信息在3.4中介绍。图节点的隐藏表示X每次都由GNN的一个传播步骤更新。我们的整体模型如图2所示。</p>
 <img src="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724210516818.png" alt="image-20200724210516818" style="zoom:80%;">
-
-        <h2 id="31-system-1">
-          <a href="#31-system-1" class="heading-link"><i class="fas fa-link"></i></a>3.1 System 1</h2>
-      
+<h2 id="31-system-1"><a class="markdownIt-Anchor" href="#31-system-1"></a> 3.1 System 1</h2>
 <p>​		系统1模型的提取能力是构建认知图的基础，因此需要一个功能强大的模型。最近，BERT 已经成为各种NLP任务中最成功的语言表征模型之一，包括SQuAD。BERT由多层Transformer组成，这是一种基于自我关注的架构，并在大型语料库上经过精心的预训练。输入句子由A和B两个不同的功能部分组成。</p>
 <p>​		我们使用BERT作为系统1，它在访问节点x时的输入如下:</p>
 <img src="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724211418178.png" alt="image-20200724211418178" style="zoom:65%;">
 <p>在线索[x;G]是从先前节点传递的句子。BERT的输出向量记为t2rl×H，其中L为输入序列的长度，H为隐藏表示的维数大小.</p>
-
-        <h2 id="32-system-2">
-          <a href="#32-system-2" class="heading-link"><i class="fas fa-link"></i></a>3.2 System 2</h2>
-      
-
-        <h2 id="33-predictor">
-          <a href="#33-predictor" class="heading-link"><i class="fas fa-link"></i></a>3.3 Predictor</h2>
-      
+<h2 id="32-system-2"><a class="markdownIt-Anchor" href="#32-system-2"></a> 3.2 System 2</h2>
+<h2 id="33-predictor"><a class="markdownIt-Anchor" href="#33-predictor"></a> 3.3 Predictor</h2>
 <p>​		HotpotQA数据集中的问题一般分为三类:特殊问题、备选问题和一般问题，以X为输入作为三个不同的下游预测任务。在测试集中，也可以很容易地根据疑问句进行分类。</p>
 <p>​		特殊问题是最常见的情况，请求查找段落中的位置、日期或实体名称等跨越。我们使用双层全连接网络(FCN)作为预测器F:</p>
 <p><img src="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724221309286.png" alt="image-20200724221309286"></p>
 <p>​		Alternative和general question都是为了比较HotpotQA中实体x和y的某个属性，分别用实体名称和“是”或“否”回答。这些问题被视为输入X[X]−X[y]的二值分类，并由另外两个相同的FCNs来解决。</p>
-
-        <h2 id="34-training">
-          <a href="#34-training" class="heading-link"><i class="fas fa-link"></i></a>3.4 Training</h2>
-      
+<h2 id="34-training"><a class="markdownIt-Anchor" href="#34-training"></a> 3.4 Training</h2>
 <p>​		我们的模型是在一个带有负抽样的监督范例下训练的。在训练集中，下一跳和答案跨度是在段落中预先提取的。更确切地说，对于与问题Q相关的每个段落，我们都有span数据</p>
 <p><img src="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/image-20200724221811000.png" alt="image-20200724221811000"></p>
 <p>在第[x]段中从starti到endi的跨度与实体或回答yi的名称模糊匹配。详见x4.1</p>
-
-        <h3 id="341-task-1-span-extraction">
-          <a href="#341-task-1-span-extraction" class="heading-link"><i class="fas fa-link"></i></a>3.4.1 Task #1: Span Extraction</h3>
-      
-
-        <h3 id="342-task-2-answer-node-prediction">
-          <a href="#342-task-2-answer-node-prediction" class="heading-link"><i class="fas fa-link"></i></a>3.4.2 Task #2: Answer Node Prediction</h3>
-      
-
-        <h1 id="4-experiment">
-          <a href="#4-experiment" class="heading-link"><i class="fas fa-link"></i></a>4 Experiment</h1>
-      
-
-        <h2 id="41-dataset">
-          <a href="#41-dataset" class="heading-link"><i class="fas fa-link"></i></a>4.1 Dataset</h2>
-      
+<h3 id="341-task-1-span-extraction"><a class="markdownIt-Anchor" href="#341-task-1-span-extraction"></a> 3.4.1 Task #1: Span Extraction</h3>
+<h3 id="342-task-2-answer-node-prediction"><a class="markdownIt-Anchor" href="#342-task-2-answer-node-prediction"></a> 3.4.2 Task #2: Answer Node Prediction</h3>
+<h1 id="4-experiment"><a class="markdownIt-Anchor" href="#4-experiment"></a> 4 Experiment</h1>
+<h2 id="41-dataset"><a class="markdownIt-Anchor" href="#41-dataset"></a> 4.1 Dataset</h2>
 <p>​		我们使用HotpotQA的全wiki设置来进行我们的实验。基于维基百科文档的前几段，通过众包收集了112,779个问题，其中84%需要多跳推理。数据被分成训练集(90,564个问题)、开发集(7,405个问题)和测试集(7,405个问题)。开发和测试集中的所有问题都是困难的多跳情况。</p>
 <p>​		在训练集中，对于每个问题，提供一个答案和2个黄金(有用)实体的段落，有多个支持事实，句子包含关键信息的推理，标记出来。还有8个对培训没有帮助的消极段落。在评估时，只提供问题，同时除了答案需要支持的事实。</p>
 <p>​		为了构建用于训练的认知图，仅金认知图中的边缘是通过基于Levenshtein distance (Navarro, 2001)的模糊匹配从支持事实中推断出来的。对于第[x]段中的每一个支撑事实，如果任何黄金实体或答案(记为y)与支撑事实中的一个跨度模糊匹配，则边(x;y)添加。</p>
-
-        <h2 id="42-experimental-details">
-          <a href="#42-experimental-details" class="heading-link"><i class="fas fa-link"></i></a>4.2 Experimental Details</h2>
-      
-
-        <h2 id="43-baselines">
-          <a href="#43-baselines" class="heading-link"><i class="fas fa-link"></i></a>4.3 Baselines</h2>
-      
+<h2 id="42-experimental-details"><a class="markdownIt-Anchor" href="#42-experimental-details"></a> 4.2 Experimental Details</h2>
+<h2 id="43-baselines"><a class="markdownIt-Anchor" href="#43-baselines"></a> 4.3 Baselines</h2>
 <p>第一类是以前的工作或竞争对手:</p>
-
-        <h2 id="44-results">
-          <a href="#44-results" class="heading-link"><i class="fas fa-link"></i></a>4.4 Results</h2>
-      
+<h2 id="44-results"><a class="markdownIt-Anchor" href="#44-results"></a> 4.4 Results</h2>
 <p>​		继Yang et al.(2018)之后，对答案和支持事实的评估包括两个指标:精确匹配(EM)和F1得分。只有当答案串和支持事实都严格正确时，联合EM为1。联合精度和召回率是Ans和Sup的乘积，然后计算联合F1。4实验结果显示了我们的方法在多个方面的优越性:</p>
-
-        <h1 id="5-related-work">
-          <a href="#5-related-work" class="heading-link"><i class="fas fa-link"></i></a>5 Related work</h1>
-      
-
-        <h1 id="6-discussion-and-conclusion">
-          <a href="#6-discussion-and-conclusion" class="heading-link"><i class="fas fa-link"></i></a>6 Discussion and Conclusion</h1>
-      
+<h1 id="5-related-work"><a class="markdownIt-Anchor" href="#5-related-work"></a> 5 Related work</h1>
+<h1 id="6-discussion-and-conclusion"><a class="markdownIt-Anchor" href="#6-discussion-and-conclusion"></a> 6 Discussion and Conclusion</h1>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -177,363 +239,229 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 4.2.1"></he
             });
             document.body.appendChild(img);
           });
-      </script></div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="http://BJXLS.github.io">BJXLS</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/">http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://bjxls.github.io/tags/QA/">QA</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://bjxls.github.io/tags/NLP/">NLP</a></span></div><div class="post-reward reward"><div class="reward-button">请我喝杯咖啡~</div><div class="reward-qrcode"><span class="reward-qrcode-alipay"><img class="reward-qrcode-alipay__img" src="/images/alipay.png"><div class="reward-qrcode-alipay__text">支付宝打赏</div></span><span class="reward-qrcode-wechat"><img class="reward-qrcode-wechat__img" src="/images/wechat.png"><div class="reward-qrcode-wechat__text">微信打赏</div></span></div></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2020/07/09/Hello-World/"><span class="paginator-prev__text">Hello World!</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="utterances-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#abstract"><span class="toc-text">
-          Abstract</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-introduction"><span class="toc-text">
-          1 Introduction</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-cognitive-graph-qa-framework"><span class="toc-text">
-          2 Cognitive Graph QA Framework</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-implementation"><span class="toc-text">
-          3 Implementation</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#31-system-1"><span class="toc-text">
-          3.1 System 1</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#32-system-2"><span class="toc-text">
-          3.2 System 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#33-predictor"><span class="toc-text">
-          3.3 Predictor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#34-training"><span class="toc-text">
-          3.4 Training</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#341-task-1-span-extraction"><span class="toc-text">
-          3.4.1 Task #1: Span Extraction</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#342-task-2-answer-node-prediction"><span class="toc-text">
-          3.4.2 Task #2: Answer Node Prediction</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-experiment"><span class="toc-text">
-          4 Experiment</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-dataset"><span class="toc-text">
-          4.1 Dataset</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-experimental-details"><span class="toc-text">
-          4.2 Experimental Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#43-baselines"><span class="toc-text">
-          4.3 Baselines</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#44-results"><span class="toc-text">
-          4.4 Results</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-related-work"><span class="toc-text">
-          5 Related work</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-discussion-and-conclusion"><span class="toc-text">
-          6 Discussion and Conclusion</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/superman.jpg" alt="avatar"></div><p class="sidebar-ov-author__text">燃烧、燃烧</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2020</span><span class="footer__icon"><i class="fas fa-laptop-code"></i></span><span>BJXLS</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-arrow-to-top"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
-  var isXML = true;
-  var search_path = 'search.json';
+      </script></section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#QA" >
+    <span class="tag-code">QA</span>
+  </a>
 
-  if (!search_path) {
-    search_path = 'search.xml';
-  } else if (/json$/i.test(search_path)) {
-    isXML = false;
-  }
+  <a href="/tags#NLP" >
+    <span class="tag-code">NLP</span>
+  </a>
 
-  var path = '/' + search_path;
-  $.ajax({
-    url: path,
-    dataType: isXML ? 'xml' : 'json',
-    async: true,
-    success: function (res) {
-      var datas = isXML ? $('entry', res).map(function () {
-        // 将 XML 转为 JSON
-        return {
-          title: $('title', this).text(),
-          content: $('content', this).text(),
-          url: $('url', this).text()
-        };
-      }).get() : res;
-      var $input = $('.search-input input');
-      var $result = $('.search-results');
-      // 搜索对象（标题、内容）的权重，影响显示顺序
-      var WEIGHT = { title: 100, content: 1 };
-      var searchPost = function () {
-        var searchText = $input.val().toLowerCase().trim();
-        // 根据空白字符分隔关键字
-        var keywords = searchText.split(/[\s]+/);
-        // 搜索结果
-        var matchPosts = [];
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2020/07/09/Hello-World/">
+        <span class="nav-arrow">← </span>
+        
+          Hello World!
+        
+      </a>
+    
+    
+  </div>
 
-        // 有多个关键字时，将原文字整个保存下来
-        if (keywords.length > 1) {
-          keywords.push(searchText);
-        }
-        // 防止未输入字符时搜索
-        if (searchText.length > 0) {
-          datas.forEach(function (data) {
-            var isMatch  = false;
-            // 没有标题的文章使用预设的 i18n 变量代替
-            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
-            var titleLower = title && title.toLowerCase();
-            // 删除 HTML 标签 和 所有空白字符
-            var content = data.content && data.content.replace(/<[^>]+>/g, '');
-            var contentLower = content && content.toLowerCase();
-            // 删除重复的 /
-            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
-            // 标题中匹配到的关键词
-            var titleHitSlice = [];
-            // 内容中匹配到的关键词
-            var contentHitSlice = [];
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Gitment START -->
+      <div id="comments"></div>
+      <!-- Gitment END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#abstract"><span class="toc-nav-text"> Abstract</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#1-introduction"><span class="toc-nav-text"> 1 Introduction</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#2-cognitive-graph-qa-framework"><span class="toc-nav-text"> 2 Cognitive Graph QA Framework</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#3-implementation"><span class="toc-nav-text"> 3 Implementation</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#31-system-1"><span class="toc-nav-text"> 3.1 System 1</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#32-system-2"><span class="toc-nav-text"> 3.2 System 2</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#33-predictor"><span class="toc-nav-text"> 3.3 Predictor</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#34-training"><span class="toc-nav-text"> 3.4 Training</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#341-task-1-span-extraction"><span class="toc-nav-text"> 3.4.1 Task #1: Span Extraction</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#342-task-2-answer-node-prediction"><span class="toc-nav-text"> 3.4.2 Task #2: Answer Node Prediction</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#4-experiment"><span class="toc-nav-text"> 4 Experiment</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#41-dataset"><span class="toc-nav-text"> 4.1 Dataset</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#42-experimental-details"><span class="toc-nav-text"> 4.2 Experimental Details</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#43-baselines"><span class="toc-nav-text"> 4.3 Baselines</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#44-results"><span class="toc-nav-text"> 4.4 Results</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#5-related-work"><span class="toc-nav-text"> 5 Related work</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#6-discussion-and-conclusion"><span class="toc-nav-text"> 6 Discussion and Conclusion</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
 
-            keywords.forEach(function (keyword) {
-              /**
-              * 获取匹配的关键词的索引
-              * @param {String} keyword 要匹配的关键字
-              * @param {String} text 原文字
-              * @param {Boolean} caseSensitive 是否区分大小写
-              * @param {Number} weight 匹配对象的权重。权重大的优先显示
-              * @return {Array}
-              */
-              function getIndexByword (word, text, caseSensitive, weight) {
-                if (!word || !text) {
-                  return [];
-                };
-
-                var startIndex = 0; // 每次匹配的开始索引
-                var index = -1;     // 匹配到的索引值
-                var result = [];    // 匹配结果
-
-                if (!caseSensitive) {
-                  word = word.toLowerCase();
-                  text = text.toLowerCase();
-                }
-
-                while((index = text.indexOf(word, startIndex)) !== -1) {
-                  var hasMatch = false;
-                  // 索引位置相同的关键词，保留长度较长的
-                  titleHitSlice.forEach(function (hit) {
-                    if (hit.index === index && hit.word.length < word.length) {
-                      hit.word = word;
-                      hasMatch = true;
-                    }
-                  });
-                  startIndex = index + word.length;
-                  !hasMatch && result.push({ index: index, word: word, weight: weight });
-                }
-                return result;
-              }
-              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
-              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
-            });
-
-            var hitTitle = titleHitSlice.length;
-            var hitContent = contentHitSlice.length;
-
-            if (hitTitle > 0 || hitContent > 0) {
-              isMatch = true;
-            }
-            if (isMatch) {
-              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
-                // 按照匹配文字的索引的递增顺序排序
-                hit.sort(function (left, right) {
-                  return left.index - right.index;
-                });
-              });
-              /**
-              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
-              * @param {String} text 原文本
-              * @param {Array} hitSlice 匹配项的索引信息
-              * @param {Number} start 开始索引
-              * @param {Number} end 结束索引
-              * @return {String}
-              */
-              function highlightKeyword (text, hitSlice, start, end) {
-                if (!text || !hitSlice || !hitSlice.length) {
-                  return;
-                }
-
-                var result = '';
-                var startIndex = start;
-                var endIndex = end;
-                hitSlice.forEach(function (hit) {
-                  if (hit.index < startIndex) {
-                    return;
-                  }
-
-                  var hitWordEnd = hit.index + hit.word.length;
-                  result += text.slice(startIndex, hit.index);
-                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
-                  startIndex = hitWordEnd;
-                });
-                result += text.slice(startIndex, endIndex);
-                return result;
-              }
-
-              var postData = {};
-              // 文章总的搜索权重
-              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
-              // 标记匹配关键词后的标题
-              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
-              // 标记匹配关键词后的内容
-              var postContent;
-              // 显示内容的长度
-              var SHOW_WORD_LENGTH = 200;
-              // 命中关键词前的字符显示长度
-              var SHOW_WORD_FRONT_LENGTH = 20;
-              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
-
-              // 截取匹配的第一个字符，前后共 200 个字符来显示
-              if (contentHitSlice.length > 0) {
-                var firstIndex = contentHitSlice[0].index;
-                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
-                var end = firstIndex + SHOW_WORD_END_LENGTH;
-                postContent = highlightKeyword(content, contentHitSlice, start, end);
-              } else { // 未匹配到内容，直接截取前 200 个字符来显示
-                postContent = content.slice(0, SHOW_WORD_LENGTH);
-              }
-              postData.title = postTitle;
-              postData.content = postContent;
-              postData.url = postURL;
-              postData.weight = postWeight;
-              matchPosts.push(postData);
-            }
-          });
-        }
-
-        var resultInnerHtml = '';
-        if (matchPosts.length) {
-          // 按权重递增的顺序排序，使权重大的优先显示
-          matchPosts.sort(function (left, right) {
-            return right.weight - left.weight;
-          });
-          resultInnerHtml += '<ul>';
-          matchPosts.forEach(function (post) {
-            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
-            resultInnerHtml += post.title;
-            resultInnerHtml += '</a><div class="search-results-content">';
-            resultInnerHtml += post.content;
-            resultInnerHtml += '</div></li>';
-          });
-          resultInnerHtml += '</ul>';
-        } else {
-          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
-        }
-        $result.html(resultInnerHtml);
-      };
-      $input.on('input', searchPost);
-      $input.on('keyup', function (e) {
-        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
-          searchPost();
-        }
-      });
+<script>
+  (function () {
+    var url = 'http://BJXLS.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale翻译/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
     }
-  });
-}
+    $('.header').removeClass('fixed-header')
 
-function closeSearch () {
-  $('body').css({ overflow: 'auto' });
-  $('.search-popup').css({ display: 'none' });
-  $('.search-mask').css({ display: 'none' });
-}
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', 'http://file.muyutech.com/error-img.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
 
-window.addEventListener('DOMContentLoaded', function () {
-  Stun.utils.pjaxReloadLocalSearch = function () {
-    $('.header-nav-search').on('click', function (e) {
-      e.stopPropagation();
-      $('body').css('overflow', 'hidden');
-      $('.search-popup')
-        .velocity('stop')
-        .velocity('transition.expandIn', {
-          duration: 300,
-          complete: function () {
-            $('.search-popup input').focus();
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== 'http://file.muyutech.com/error-img.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+  <script>
+    var gitmentConfig = "BJXLS";
+    if (gitmentConfig !== 'undefined') {
+      var gitment = new Gitment({
+        id: "Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译",
+        owner: "BJXLS",
+        repo: "bjxls.github.io",
+        oauth: {
+          client_id: "bb47064e75d7be740d04",
+          client_secret: "80e2afb16fa5b336b2d354dd5bc66098a7529d28"
+        },
+        theme: {
+          render(state, instance) {
+            const container = document.createElement('div')
+            container.lang = "en-US"
+            container.className = 'gitment-container gitment-root-container'
+            container.appendChild(instance.renderHeader(state, instance))
+            container.appendChild(instance.renderEditor(state, instance))
+            container.appendChild(instance.renderComments(state, instance))
+            container.appendChild(instance.renderFooter(state, instance))
+            return container;
           }
-        });
-      $('.search-mask')
-        .velocity('stop')
-        .velocity('transition.fadeIn', {
-          duration: 300
-        });
-
-      initSearch();
-    });
-    $('.search-mask, .search-close').on('click', function () {
-      closeSearch();
-    });
-    $(document).on('keydown', function (e) {
-      // Escape <=> 27
-      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
-        closeSearch();
-      }
-    });
-  };
-
-  Stun.utils.pjaxReloadLocalSearch();
-}, false);</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
-  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload",".header-inner"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
-  // 加载进度条的计时器
-  var loadingTimer = null;
-
-  // 重置页面 Y 方向上的滚动偏移量
-  document.addEventListener('pjax:send', function () {
-    $('.header-nav-menu').removeClass('show');
-    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
-      $('html').velocity('scroll', {
-        duration: 500,
-        offset: $('#header').height(),
-        easing: 'easeInOutCubic'
-      });
+        }
+      })
+      gitment.render(document.getElementById('comments'))
     }
+  </script>
 
-    var loadingBarWidth = 20;
-    var MAX_LOADING_WIDTH = 95;
 
-    $('.loading-bar').addClass('loading');
-    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
-    clearInterval(loadingTimer);
-    loadingTimer = setInterval(function () {
-      loadingBarWidth += 3;
-      if (loadingBarWidth > MAX_LOADING_WIDTH) {
-        loadingBarWidth = MAX_LOADING_WIDTH;
-      }
-      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
-    }, 500);
-  }, false);
 
-  window.addEventListener('pjax:complete', function () {
-    clearInterval(loadingTimer);
-    $('.loading-bar__progress').css('width', '100%');
-    $('.loading-bar').removeClass('loading');
-    setTimeout(function () {
-      $('.loading-bar__progress').css('width', '0');
-    }, 400);
-    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
-      $(this).remove();
-    });
-    $('script[data-pjax], #pjax-reload script').each(function () {
-      $(this).parent().append($(this).remove());
-    });
 
-    if (Stun.utils.pjaxReloadBoot) {
-      Stun.utils.pjaxReloadBoot();
-    }
-    if (Stun.utils.pjaxReloadScroll) {
-      Stun.utils.pjaxReloadScroll();
-    }
-    if (Stun.utils.pjaxReloadSidebar) {
-      Stun.utils.pjaxReloadSidebar();
-    }
-    if (true) {
-      if (Stun.utils.pjaxReloadHeader) {
-        Stun.utils.pjaxReloadHeader();
-      }
-      if (Stun.utils.pjaxReloadScrollIcon) {
-        Stun.utils.pjaxReloadScrollIcon();
-      }
-      if (Stun.utils.pjaxReloadLocalSearch) {
-        Stun.utils.pjaxReloadLocalSearch();
-      }
-    }
-  }, false);
-}, false);</script><div id="pjax-reload"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" rel="stylesheet" type="text/css"><link href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/copy-tex.css" rel="stylesheet" type="text/css"><script src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/copy-tex.min.js"></script><script src="https://cdn.jsdelivr.net/npm/quicklink@1.0.1/dist/quicklink.umd.js"></script><script>function initQuicklink() {
-  quicklink({
-    timeout: '10000',
-    priority: true,
-    ignores: [uri => uri.includes('#'), uri => uri === 'http://bjxls.github.io/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/', /\/api\/?/,uri => uri.includes('.xml'),uri => uri.includes('.zip'),(uri, el) => el.hasAttribute('nofollow'),(uri, el) => el.hasAttribute('noprefetch')]
-  });
-}
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2021 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a href="https://github.com/yanm1ng" target="_blank" rel="noopener">yanm1ng</a>
+  </p>
+</footer>
 
-if (true || false) {
-  initQuicklink();
-} else {
-  window.addEventListener('DOMContentLoaded', initQuicklink, false);
-}</script></div><script data-pjax="">function loadUtterances() {
-  var d = document, s = d.createElement('script');
-  var container = d.getElementById('utterances-container');
-
-  if (!container) {
-    return;
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
   }
-  s.src = 'https://utteranc.es/client.js';
-  s.setAttribute('repo', 'BJXLS/BJXLS.github.io');
-  s.setAttribute('issue-term', 'title');
-  s.setAttribute('label', 'utterances');
-  s.setAttribute('theme', 'github-light');
-  s.setAttribute('crossorigin', 'anonymous');
-  s.setAttribute('async', '');
-  if (true) {
-    s.setAttribute('data-pjax-rm', '');
-  }
-  container.append(s);
-}
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
 
-if (true) {
-  loadUtterances();
-} else {
-  window.addEventListener('DOMContentLoaded', loadUtterances, false);
-}</script><script src="/js/utils.js?v=2.1.1"></script><script src="/js/stun-boot.js?v=2.1.1"></script><script src="/js/scroll.js?v=2.1.1"></script><script src="/js/header.js?v=2.1.1"></script><script src="/js/sidebar.js?v=2.1.1"></script><script type="application/json" src="/search.json"></script></body></html>
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+  </body>
+</html>

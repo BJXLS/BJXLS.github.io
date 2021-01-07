@@ -10,7 +10,7 @@
   
   <title>
     
-      FREE BJXLS
+      About | FREE BJXLS
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -81,7 +81,7 @@
       
         <li class="list-item">
           
-            <a href="/" class="item-link active">Home</a>
+            <a href="/" class="item-link">Home</a>
           
         </li>
       
@@ -120,7 +120,7 @@
         
           <li class="menu-item">
             
-              <a href="/" class="menu-link mobile-active">Home</a>
+              <a href="/" class="menu-link">Home</a>
             
           </li>
         
@@ -153,58 +153,45 @@
   </div>
 </header>
 
-    <main class="app-body">
+    <div id="about-banner" style="background-image: url(/images/snow_mountain.jpg)"></div>
+<div class="author">
+  <div class="head">
+    <img src="/images/superman.jpg" />
+  </div>
+  <h3>BJXLS</h3>
   
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/">Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译</a>
-      </h2>
-      <p class="article-date">2020年7月25日</p>
-      
-        
-  <a href="/tags#QA" >
-    <span class="tag-code">QA</span>
-  </a>
-
-  <a href="/tags#NLP" >
-    <span class="tag-code">NLP</span>
-  </a>
-
-      
-      <div class="article-summary">
-        
-          <p>我们提出了一个新的CogQA框架，用于回答网络规模的文档中的多跳问题。该框架以认知科学的双过程理论为基础，通过协调隐式抽取模块(系统1)和显式推理模块(系统2)，在迭代过程中逐步构建认知图，在给出准确答案的同时，进一步提供可解释的推理路径。具体来说，我们基于BERT和图神经网络(GNN)的实现有效地处理了HotpotQA fullwiki数据集中数百万个多跳推理问题的文档，在F1排行榜上获得了34.9的联合得分，而最佳竞争对手的得分为23.6。</p>
-        
-      </div>
-      <a class="more" href="/2020/07/25/Cognitive-Graph-for-Multi-Hop-Reading-Comprehension-at-Scale%E7%BF%BB%E8%AF%91/">Read more</a>
-    </article>
+    <p class="description"></p>
   
-    <article class="article-card">
-      <h2 class="article-head">
-        <a href="/2020/07/09/Hello-World/">Hello World!</a>
-      </h2>
-      <p class="article-date">2020年7月9日</p>
-      
-        
-  <a href="/tags#-随笔" >
-    <span class="tag-code">-随笔</span>
-  </a>
+  <section class="share-icons">
+    
+    
+    
+      <a class="icon-github" href="https://github.com/BJXLS" target="_blank">
+        <span class="fa-stack fa-lg">
+          <i class="fa fa-circle fa-stack-2x"></i>
+          <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+        </span>
+      </a>
+    
+    
+    
+    
+  </section>
+</div>
 
-      
-      <div class="article-summary">
-        
-          ​		欢迎！这里是“BJXLS的思维空间”。我是一个blog新人，接下来我会在这里陆陆续续发布自己的编程学习文章。同时不定期也会发布自己对待一些事情的看法。希望自己多多加油，也希望大家多多支持。如果喜欢本站点，可以分享给身边的小伙伴。如果有问题欢迎大家留言。
-
-        documen ...
-        
-      </div>
-      <a class="more" href="/2020/07/09/Hello-World/">Read more</a>
-    </article>
-  
-
-  
-</main>
-
+<script>
+  (function () {
+    $('.header').removeClass('fixed-header')
+    var windowH = $(window).height();
+    var author = $('.author')
+    var bodyH = author.offset().top + author[0].offsetHeight + 71;
+    if (bodyH < windowH) {
+      author.css({
+        'margin-bottom': windowH - bodyH
+      })
+    }
+  })();
+</script>
 
     <div class="scroll-top">
   <span class="arrow-icon"></span>
