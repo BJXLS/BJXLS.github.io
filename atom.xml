@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bjxls.github.io/"/>
-  <updated>2021-01-07T02:18:44.309Z</updated>
+  <updated>2021-01-09T15:51:32.490Z</updated>
   <id>http://bjxls.github.io/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>微信小程序学习笔记（一）</title>
+    <link href="http://bjxls.github.io/2021/01/07/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/"/>
+    <id>http://bjxls.github.io/2021/01/07/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/</id>
+    <published>2021-01-07T04:23:04.000Z</published>
+    <updated>2021-01-09T15:51:32.490Z</updated>
+    
+    <summary type="html">
+    
+      
+      
+        
+        
+          &lt;p&gt;​		这次小程序的学习契机主要是接了室友的一个小程序毕设。&lt;/p&gt;
+&lt;p&gt;​		之前就是稍微接触了一下小程序，现在正好可以完整的学习。从这篇博文开始，我会陆续记录自己的开发心得和技术摘要。&lt;/p&gt;
+&lt;h1 id=&quot;一-环境准备&quot;&gt;&lt;a
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="微信小程序" scheme="http://BJXLS.github.io/tags/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F/"/>
+    
+  </entry>
   
   <entry>
     <title>Cognitive Graph for Multi-Hop Reading Comprehension at Scale翻译</title>
