@@ -199,8 +199,8 @@ Java 为每个原始类型提供了包装类型：</p>
 <p>​		由于 StringBuilder 相较于 StringBuffer 有速度优势，<strong>所以多数情况下建议使用 StringBuilder 类</strong>。然而在应用程序要求线程安全的情况下，则必须使用 StringBuffer 类。</p>
 <blockquote>
 <p>线程安全就是线程同步的意思，就是当一个程序对一个线程安全的方法或者语句进行访问的时候，其他的不能再对他进行操作了，必须等到这次访问结束以后才能对这个线程安全的方法进行访问。——互斥访问</p>
-<p><img src="/2021/01/16/%E5%AE%9E%E4%B9%A0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/20180411092328691.png" alt="20180411092328691"></p>
 </blockquote>
+<p><img src="/2021/01/16/%E5%AE%9E%E4%B9%A0%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/20180411092328691.png" alt="20180411092328691"></p>
 <h2 id="请说明string是最基本的数据类型吗"><a class="markdownIt-Anchor" href="#请说明string是最基本的数据类型吗"></a> 请说明String是最基本的数据类型吗?</h2>
 <ul>
 <li>基本数据类型包括byte、int、char、long、float、double、boolean和short。</li>
@@ -208,6 +208,24 @@ Java 为每个原始类型提供了包装类型：</p>
 <li>为了提高效率节省空间，我们应该用StringBuffer类。</li>
 </ul>
 <h2 id="请你讲讲数组array和列表arraylist的区别什么时候应该使用array而不是arraylist"><a class="markdownIt-Anchor" href="#请你讲讲数组array和列表arraylist的区别什么时候应该使用array而不是arraylist"></a> 请你讲讲数组(Array)和列表(ArrayList)的区别？什么时候应该使用Array而不是ArrayList？</h2>
+<p>Array和ArrayList的不同点：</p>
+<ul>
+<li>Array可以包含基本类型和对象类型，ArrayList只能包含对象类型。</li>
+<li>Array大小是固定的，ArrayList的大小是动态变化的。</li>
+<li>ArrayList提供了更多的方法和特性，比如：addAll()，removeAll()，iterator()等等。</li>
+<li>对于基本类型数据，集合使用自动装箱来减少编码工作量。但是，当处理固定大小的基本数据类型的时候，这种方式相对比较慢。</li>
+</ul>
+<h2 id="什么是自动拆装箱"><a class="markdownIt-Anchor" href="#什么是自动拆装箱"></a> 什么是自动拆装箱？</h2>
+<p>​		自动装箱是Java编译器在基本数据类型和对应的对象包装类型之间做的一个转化。比如：把int转化成Integer，double转化成Double，等等。反之就是自动拆箱。</p>
+<h2 id="二进制怎么表达小数并且进行计算"><a class="markdownIt-Anchor" href="#二进制怎么表达小数并且进行计算"></a> 二进制怎么表达小数，并且进行计算？</h2>
+<h2 id="请你讲讲一个十进制的数在内存中是怎么存的"><a class="markdownIt-Anchor" href="#请你讲讲一个十进制的数在内存中是怎么存的"></a> 请你讲讲一个十进制的数在内存中是怎么存的？</h2>
+<h2 id="请你说说lamda表达式的优缺点"><a class="markdownIt-Anchor" href="#请你说说lamda表达式的优缺点"></a> 请你说说Lamda表达式的优缺点。</h2>
+<h2 id="你知道java8的新特性吗请简单介绍一下"><a class="markdownIt-Anchor" href="#你知道java8的新特性吗请简单介绍一下"></a> 你知道java8的新特性吗，请简单介绍一下</h2>
+<h2 id="请你说明符号比较的是什么"><a class="markdownIt-Anchor" href="#请你说明符号比较的是什么"></a> 请你说明符号“==”比较的是什么？</h2>
+<p>​		“<mark>”对比两个对象基于内存引用，如果两个对象的引用完全相同（指向同一个对象）时，“</mark>”操作将返回true，否则返回false。“==”如果两边是基本类型，就是比较数值是否相等。</p>
+<h2 id="请你解释object若不重写hashcode的话hashcode如何计算出来的"><a class="markdownIt-Anchor" href="#请你解释object若不重写hashcode的话hashcode如何计算出来的"></a> 请你解释Object若不重写hashCode()的话，hashCode()如何计算出来的？</h2>
+<h2 id="请你解释为什么重写equals还要重写hashcode"><a class="markdownIt-Anchor" href="#请你解释为什么重写equals还要重写hashcode"></a> 请你解释为什么重写equals还要重写hashcode？</h2>
+<h2 id="请你介绍一下map的分类和常见的情况"><a class="markdownIt-Anchor" href="#请你介绍一下map的分类和常见的情况"></a> 请你介绍一下map的分类和常见的情况</h2>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -300,7 +318,7 @@ Java 为每个原始类型提供了包装类型：</p>
   <div class="toc-main">
     <strong class="toc-title">Catalog</strong>
     
-      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#php和java的区别"><span class="toc-nav-text"> PHP和Java的区别</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#正则表达式"><span class="toc-nav-text"> 正则表达式</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你讲讲和的区别"><span class="toc-nav-text"> 请你讲讲&amp;和&amp;&amp;的区别？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#int和integer有什么区别"><span class="toc-nav-text"> int和Integer有什么区别？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#不同的输出编码的原理和区别以及java怎么实现不同情形的输出"><span class="toc-nav-text"> 不同的输出编码的原理和区别以及Java怎么实现不同情形的输出？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你说明string-stringbuffer和stringbuilder的区别"><span class="toc-nav-text"> 请你说明String、StringBuffer和StringBuilder的区别</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#string"><span class="toc-nav-text"> String</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#stringbuffer和stringbuilder"><span class="toc-nav-text"> StringBuffer和StringBuilder</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请说明string是最基本的数据类型吗"><span class="toc-nav-text"> 请说明String是最基本的数据类型吗?</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你讲讲数组array和列表arraylist的区别什么时候应该使用array而不是arraylist"><span class="toc-nav-text"> 请你讲讲数组(Array)和列表(ArrayList)的区别？什么时候应该使用Array而不是ArrayList？</span></a></li></ol>
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#php和java的区别"><span class="toc-nav-text"> PHP和Java的区别</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#正则表达式"><span class="toc-nav-text"> 正则表达式</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你讲讲和的区别"><span class="toc-nav-text"> 请你讲讲&amp;和&amp;&amp;的区别？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#int和integer有什么区别"><span class="toc-nav-text"> int和Integer有什么区别？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#不同的输出编码的原理和区别以及java怎么实现不同情形的输出"><span class="toc-nav-text"> 不同的输出编码的原理和区别以及Java怎么实现不同情形的输出？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你说明string-stringbuffer和stringbuilder的区别"><span class="toc-nav-text"> 请你说明String、StringBuffer和StringBuilder的区别</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#string"><span class="toc-nav-text"> String</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#stringbuffer和stringbuilder"><span class="toc-nav-text"> StringBuffer和StringBuilder</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请说明string是最基本的数据类型吗"><span class="toc-nav-text"> 请说明String是最基本的数据类型吗?</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你讲讲数组array和列表arraylist的区别什么时候应该使用array而不是arraylist"><span class="toc-nav-text"> 请你讲讲数组(Array)和列表(ArrayList)的区别？什么时候应该使用Array而不是ArrayList？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#什么是自动拆装箱"><span class="toc-nav-text"> 什么是自动拆装箱？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#二进制怎么表达小数并且进行计算"><span class="toc-nav-text"> 二进制怎么表达小数，并且进行计算？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你讲讲一个十进制的数在内存中是怎么存的"><span class="toc-nav-text"> 请你讲讲一个十进制的数在内存中是怎么存的？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你说说lamda表达式的优缺点"><span class="toc-nav-text"> 请你说说Lamda表达式的优缺点。</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#你知道java8的新特性吗请简单介绍一下"><span class="toc-nav-text"> 你知道java8的新特性吗，请简单介绍一下</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你说明符号比较的是什么"><span class="toc-nav-text"> 请你说明符号“&#x3D;&#x3D;”比较的是什么？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你解释object若不重写hashcode的话hashcode如何计算出来的"><span class="toc-nav-text"> 请你解释Object若不重写hashCode()的话，hashCode()如何计算出来的？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你解释为什么重写equals还要重写hashcode"><span class="toc-nav-text"> 请你解释为什么重写equals还要重写hashcode？</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#请你介绍一下map的分类和常见的情况"><span class="toc-nav-text"> 请你介绍一下map的分类和常见的情况</span></a></li></ol>
     
   </div>
 </aside>
