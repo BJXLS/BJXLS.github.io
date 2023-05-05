@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      HttpClient的使用 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>HttpClient的使用</h2>
+  <p class="post-date">2023-05-05</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="HttpClient的使用"><a href="#HttpClient的使用" class="headerlink" title="HttpClient的使用"></a>HttpClient的使用</h1><h2 id="HttpClient的基础使用"><a href="#HttpClient的基础使用" class="headerlink" title="HttpClient的基础使用"></a>HttpClient的基础使用</h2><blockquote>
+<p>HttpClient是Apache中一个开源的项目，实现了Http标准中的Client端的所有功能，使用起来非常方便。</p>
+</blockquote>
+<p>HttpClient使用主要有以下几个步骤：</p>
+<ol>
+<li>创建HttpClient对象</li>
+<li>创建一个Request对象</li>
+<li>使用HttpClient来执行Request请求，得到返回的Response</li>
+<li>处理Response</li>
+<li><strong>关闭HttpClient（非常重要，很多惨案是由于没有及时关闭HttpClient）</strong></li>
+</ol>
+<p>想要使用首先要加入Maven依赖：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">    &lt;groupId&gt;org.apache.httpcomponents&lt;/groupId&gt;</span><br><span class="line">    &lt;artifactId&gt;httpclient&lt;/artifactId&gt;</span><br><span class="line">    &lt;version&gt;<span class="number">4.5</span><span class="number">.2</span>&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<p>具体实现用例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;https://test.com/test&quot;</span>;</span><br><span class="line">    <span class="type">HttpPost</span> <span class="variable">httpPost</span> <span class="operator">=</span> constructRequire(url, time);</span><br><span class="line">    <span class="keyword">try</span> (<span class="type">CloseableHttpClient</span> <span class="variable">client</span> <span class="operator">=</span> HttpClients.createDefault();</span><br><span class="line">     <span class="type">CloseableHttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> client.execute(httpPost)) &#123; <span class="comment">// 使用try with resource结构</span></span><br><span class="line">        <span class="type">HttpEntity</span> <span class="variable">responseEntity</span> <span class="operator">=</span> response.getEntity();</span><br><span class="line">        <span class="keyword">if</span> (responseEntity != <span class="literal">null</span>) &#123; <span class="comment">// 这部分根据自己数据的结构，获取数据内容</span></span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSON.parseObject(EntityUtils.toString(responseEntity));</span><br><span class="line">            <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;code&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">errCode</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;errCode&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">status</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;status&quot;</span>);</span><br><span class="line">            <span class="type">JSONArray</span> <span class="variable">dataArray</span> <span class="operator">=</span> jsonObject.getJSONArray(<span class="string">&quot;data&quot;</span>);</span><br><span class="line">            log.info(<span class="string">&quot;code:&#123;&#125;, errCode:&#123;&#125;, status:&#123;&#125;, data:&#123;&#125;&quot;</span>, code, errCode, status, dataArray.toJSONString());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            log.error(<span class="string">&quot;responseEntity is not null&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;getTimoutTeacherNumber error&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> HttpPost <span class="title function_">constructRequire</span><span class="params">(String url, String time)</span> &#123;</span><br><span class="line">    <span class="comment">// post请求体和请求头都在这里构建</span></span><br><span class="line">    <span class="type">JSONObject</span> <span class="variable">jsonInputObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">    jsonInputObject.put(<span class="string">&quot;event_time_min&quot;</span>, time);</span><br><span class="line">    <span class="type">StringEntity</span> <span class="variable">entity</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringEntity</span>(jsonInputObject.toJSONString(), <span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    <span class="type">HttpPost</span> <span class="variable">httpPost</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpPost</span>(url);</span><br><span class="line">    httpPost.setEntity(entity);</span><br><span class="line">    httpPost.setHeader(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json;charset=utf8&quot;</span>);</span><br><span class="line">    <span class="type">RequestConfig</span> <span class="variable">requestConfig</span> <span class="operator">=</span> RequestConfig.custom()</span><br><span class="line">            <span class="comment">// 设置连接超时时间(单位毫秒)</span></span><br><span class="line">            .setConnectTimeout(<span class="number">3000</span>)</span><br><span class="line">            <span class="comment">// 设置请求超时时间(单位毫秒)</span></span><br><span class="line">            .setConnectionRequestTimeout(<span class="number">3000</span>)</span><br><span class="line">            <span class="comment">// socket读写超时时间(单位毫秒)</span></span><br><span class="line">            .setSocketTimeout(<span class="number">3000</span>)</span><br><span class="line">            <span class="comment">// 设置是否允许重定向(默认为true)</span></span><br><span class="line">            .setRedirectsEnabled(<span class="literal">true</span>).build();</span><br><span class="line">    httpPost.setConfig(requestConfig);</span><br><span class="line">    <span class="keyword">return</span> httpPost;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">deGet</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> <span class="string">&quot;http://testUrl&quot;</span>;</span><br><span class="line">    <span class="keyword">try</span> (<span class="type">CloseableHttpClient</span> <span class="variable">httpClient</span> <span class="operator">=</span> constructHttpClient();</span><br><span class="line">        <span class="type">CloseableHttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> configAndExecuteHttpGet(httpClient, url, accessToken);) &#123;</span><br><span class="line">        <span class="type">HttpEntity</span> <span class="variable">responseEntity</span> <span class="operator">=</span> response.getEntity();</span><br><span class="line">        <span class="keyword">if</span> (responseEntity != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSON.parseObject(EntityUtils.toString(responseEntity));</span><br><span class="line">            <span class="type">String</span> <span class="variable">code</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;code&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;responseEntity is null&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">    log.error(<span class="string">&quot;FeiLianDevicesScheduler---get devices data error:first offset require error &quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> CloseableHttpResponse <span class="title function_">configAndExecuteHttpGet</span><span class="params">(CloseableHttpClient httpClient, String url, String accessToken)</span> &#123;</span><br><span class="line">    <span class="type">HttpGet</span> <span class="variable">httpGet</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HttpGet</span>(url);</span><br><span class="line">    httpGet.setHeader(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/json;charset=utf8&quot;</span>);</span><br><span class="line">    httpGet.setHeader(<span class="string">&quot;Authorization&quot;</span>, accessToken);</span><br><span class="line">    <span class="type">RequestConfig</span> <span class="variable">requestConfig</span> <span class="operator">=</span> RequestConfig.custom()</span><br><span class="line">            <span class="comment">// 设置连接超时时间(单位毫秒)</span></span><br><span class="line">            .setConnectTimeout(<span class="number">30000</span>)</span><br><span class="line">            <span class="comment">// 设置请求超时时间(单位毫秒)</span></span><br><span class="line">            .setConnectionRequestTimeout(<span class="number">30000</span>)</span><br><span class="line">            <span class="comment">// socket读写超时时间(单位毫秒)</span></span><br><span class="line">            .setSocketTimeout(<span class="number">30000</span>)</span><br><span class="line">            <span class="comment">// 设置是否允许重定向(默认为true)</span></span><br><span class="line">            .setRedirectsEnabled(<span class="literal">true</span>).build();</span><br><span class="line">    httpGet.setConfig(requestConfig);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">CloseableHttpResponse</span> <span class="variable">response</span> <span class="operator">=</span> httpClient.execute(httpGet);</span><br><span class="line">        <span class="keyword">return</span> response;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">	log.error(e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><em>这里创建client和response建议使用try-with-resource，由Java代码自动进行关闭。</em></p>
+</blockquote>
+<h2 id="HttpClient的三种超时时间"><a href="#HttpClient的三种超时时间" class="headerlink" title="HttpClient的三种超时时间"></a>HttpClient的三种超时时间</h2><ul>
+<li><p>connectionRequestTimeout—从连接池中取连接的超时时间</p>
+<ul>
+<li>这个时间定义的是从连接池中取出连接的超时时间， 如果连接池中没有可用的连接，则request会被阻塞，最长等待connectionRequestTimeout的时间，如果还没有被服务，则抛出<code>ConnectionPoolTimeoutException</code>​异常，不继续等待。</li>
+</ul>
+</li>
+<li><p>connectTimeout—连接超时时间</p>
+<ul>
+<li>这个时间定义了通过网络与服务器建立连接的超时时间<strong>（某个链接接通目标url的时间）。</strong>会抛出<code>ConnectionTimeoutException</code>​异常。</li>
+</ul>
+</li>
+<li><p>socketTimeout—请求超时时间</p>
+<ul>
+<li>这个时间定义了socket读数据的超时时间，也就是连接到服务器之后<strong>从服务器获取相应数据需要等待的时间（返回response的时间）。</strong>会抛出<code>SocketTimeoutException</code>​异常。</li>
+</ul>
+</li>
+</ul>
+<h2 id="发送HTTPS请求报错没有证书，绕过SSL方法"><a href="#发送HTTPS请求报错没有证书，绕过SSL方法" class="headerlink" title="发送HTTPS请求报错没有证书，绕过SSL方法"></a>发送HTTPS请求报错没有证书，绕过SSL方法</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> CloseableHttpClient <span class="title function_">constructHttpClient</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 跳过SSL验证</span></span><br><span class="line">        <span class="type">SSLContextBuilder</span> <span class="variable">builder</span> <span class="operator">=</span> SSLContexts.custom();</span><br><span class="line">        builder.loadTrustMaterial(<span class="literal">null</span>, (TrustStrategy) (x509Certificates, s) -&gt; <span class="literal">true</span>);</span><br><span class="line">        <span class="type">SSLContext</span> <span class="variable">sslContext</span> <span class="operator">=</span> builder.build();</span><br><span class="line">        <span class="type">SSLConnectionSocketFactory</span> <span class="variable">sslsf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SSLConnectionSocketFactory</span>(sslContext, <span class="keyword">new</span> <span class="title class_">X509HostnameVerifier</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">verify</span><span class="params">(String host, SSLSocket ssl)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">verify</span><span class="params">(String s, java.security.cert.X509Certificate x509Certificate)</span> <span class="keyword">throws</span> SSLException &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">verify</span><span class="params">(String host, String[] cns, String[] subjectAlts)</span> <span class="keyword">throws</span> SSLException &#123;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">verify</span><span class="params">(String s, SSLSession sslSession)</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        Registry&lt;ConnectionSocketFactory&gt; socketFactoryRegistry = RegistryBuilder</span><br><span class="line">                .&lt;ConnectionSocketFactory&gt;create()</span><br><span class="line">                .register(<span class="string">&quot;https&quot;</span>, sslsf)</span><br><span class="line">                .build();</span><br><span class="line">        <span class="type">PoolingHttpClientConnectionManager</span> <span class="variable">cm</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PoolingHttpClientConnectionManager</span>(socketFactoryRegistry);</span><br><span class="line">        <span class="keyword">return</span> HttpClients</span><br><span class="line">                .custom()</span><br><span class="line">                .setConnectionManager(cm)</span><br><span class="line">                .build();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) &#123;</span><br><span class="line">        log.error(<span class="string">&quot;SSL error:&#123;&#125;&quot;</span>,<span class="string">&quot;bypass SSL error&quot;</span>, e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_43842093/article/details/127342688">HttpClient使用和详解 CSDN</a></li>
+</ul>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
+<li><p><input disabled="" type="checkbox"> 
+TCP链接怎么看</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+HTTP链接关闭后TCP链接还存在吗？</p>
+<ul>
+<li><p><input disabled="" type="checkbox"> 
+什么情况会关闭TCP链接？</p>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+什么时HTTP的route？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> route指运行环境机器-&gt;目标机器host的一条线路，如果目标url和host是一个，那么他们的route也是一样的</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+什么是流？只能处理一次？</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+socket是比TCP更底层的链接？</p>
+</li>
+</ul>
+<p>‍</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#网络" >
+    <span class="tag-code">网络</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/05/01/Promethues/">
+        <span class="nav-arrow">← </span>
+        
+          Promethues
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#HttpClient%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">HttpClient的使用</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#HttpClient%E7%9A%84%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8"><span class="toc-nav-text">HttpClient的基础使用</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#HttpClient%E7%9A%84%E4%B8%89%E7%A7%8D%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4"><span class="toc-nav-text">HttpClient的三种超时时间</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%91%E9%80%81HTTPS%E8%AF%B7%E6%B1%82%E6%8A%A5%E9%94%99%E6%B2%A1%E6%9C%89%E8%AF%81%E4%B9%A6%EF%BC%8C%E7%BB%95%E8%BF%87SSL%E6%96%B9%E6%B3%95"><span class="toc-nav-text">发送HTTPS请求报错没有证书，绕过SSL方法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/05/05/HttpClient的使用/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
