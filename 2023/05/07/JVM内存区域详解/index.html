@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      JVM内存区域详解 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>JVM内存区域详解</h2>
+  <p class="post-date">2023-05-07</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="Java内存区域详解"><a href="#Java内存区域详解" class="headerlink" title="Java内存区域详解"></a>Java内存区域详解</h1><blockquote>
+<p>Java虚拟机规范对于运行时数据区域的规定相关宽松。以堆为例：堆可以是连续空间，也可以不连续。</p>
+</blockquote>
+<p>​<img src="/../images/net-img-java-runtime-data-areas-jdk1.7-20230507002539-6vsko0i.png" alt="Java 运行时数据区域（JDK1.7）">​<img src="/../images/net-img-java-runtime-data-areas-jdk1.8-20230507002539-5467mhm.png" alt="Java 运行时数据区域（JDK1.8 ）">​​</p>
+<p>我们先从线程私有的部分看起，因为这部分牵扯的内容相对较少。</p>
+<h1 id="线程私有"><a href="#线程私有" class="headerlink" title="线程私有"></a>线程私有</h1><h2 id="虚拟机栈（VM-Stack）"><a href="#虚拟机栈（VM-Stack）" class="headerlink" title="虚拟机栈（VM Stack）"></a>虚拟机栈（VM Stack）</h2><blockquote>
+<p>虚拟机栈简称栈，它的声明周期也是与线程相同。整个的虚拟机栈保证先入后出的操作规则，方法的调用和退出对应着栈帧的压入和弹出，一个栈帧包含四个部分。</p>
+</blockquote>
+<ul>
+<li><p>栈帧（需要详细扩展，这部分明显需要自己写一下虚拟机，才会有较好的理解）</p>
+<ul>
+<li>局部变量表</li>
+<li>操作数栈</li>
+<li>动态链接</li>
+<li>方法返回地址</li>
+<li>一些附加信息</li>
+</ul>
+</li>
+</ul>
+<p><img src="/../images/net-img-201809122103015-20230507002539-j4hjpj6.jpg"></p>
+<h3 id="局部变量表"><a href="#局部变量表" class="headerlink" title="局部变量表"></a>局部变量表</h3><p>局部变量表其实就是Class文件中变量值的存储空间，存放<strong>方法参数</strong>和<strong>局部变量。</strong>Class文件中的<code>max_locals</code>​制定了局部变量表的大小，所以在引入虚拟机之前局部变量表的大小就已经固定了。</p>
+<p>局部变量表的基本单位是变量槽（slot）。</p>
+<h3 id="操作数栈"><a href="#操作数栈" class="headerlink" title="操作数栈"></a>操作数栈</h3><p>操作数栈主要用于<strong>一些算术运算或者调用其它一些方法进行参数传递时的媒介</strong>。Class文件中的Code属性的<code>max_stacks</code>​规定了它的最大栈深度。</p>
+<h3 id="动态链接"><a href="#动态链接" class="headerlink" title="动态链接"></a>动态链接</h3><p>动态链接其实就是将“符号引用”转化为“直接引用”的过程。与之对应的还有一个<strong>静态链接</strong>的概念。</p>
+<ul>
+<li><strong>静态链接</strong></li>
+</ul>
+<p>当一个字节码文件被装载进JVM内部时，如果被调用的目标方法在编译器可知，那就在装载时将符号引用转化为直接引用。</p>
+<ul>
+<li><strong>动态链接</strong></li>
+</ul>
+<p>如果被调用的方法在编译期间无法确定，只能在运行期间进行转化，那么这种行为就成为动态链接。</p>
+<h3 id="方法返回地址"><a href="#方法返回地址" class="headerlink" title="方法返回地址"></a>方法返回地址</h3><ul>
+<li><p>可能会出现两种异常</p>
+<ul>
+<li>StackOverFlowError</li>
+<li>OutOfMemoryError</li>
+</ul>
+</li>
+</ul>
+<h2 id="本地方法栈（Native-Method-Stack）"><a href="#本地方法栈（Native-Method-Stack）" class="headerlink" title="本地方法栈（Native Method Stack）"></a>本地方法栈（Native Method Stack）</h2><blockquote>
+<p>和虚拟机栈的区别就是，虚拟机栈存储的是Java方法，而本地方法栈执行的是native方法服务。HotSpot虚拟机中，这两个栈合二为一。</p>
+</blockquote>
+<h2 id="程序计数器（Program-Counter-Register）"><a href="#程序计数器（Program-Counter-Register）" class="headerlink" title="程序计数器（Program Counter Register）"></a>程序计数器（Program Counter Register）</h2><p>程序计数器是较小的内存空间，它用来指示当前字节码行号位置。字节码解释器工作时通过这个计数器的值来选取下一条需要执行的字节码指令。</p>
+<p><strong>程序计数器是唯一一个不会出现</strong>​**<code>OutOfMemeryError</code><strong>​​</strong>的内存区域。（为什么？规定范围了吗？）**</p>
+<h1 id="线程共有"><a href="#线程共有" class="headerlink" title="线程共有"></a>线程共有</h1><h2 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h2><blockquote>
+<p>堆是Java虚拟机管理的内存最大的一块，所有线程都共享此内存区域，并且在虚拟机启动时创建。此内存区域的唯一目的就是<strong>存放对象实例</strong>，几乎所有的对象实例以及数组都在这里分配内存。</p>
+</blockquote>
+<blockquote>
+<p>什么是<strong>逃逸分析：</strong>从JDK1.7开始默认开启逃逸分析，如果某些方法中的对象引用没有被返回或者未被外面使用，那么这个对象就可以在栈上分配内存。</p>
+</blockquote>
+<p>Java堆是垃圾收集器管理的主要区域，因此也被称为GC堆。</p>
+<p>下面是堆结构的分代图</p>
+<blockquote>
+<p><strong>注意：</strong>从垃圾回收的角度，由于大部分垃圾收集器都是基于“分代”收集理论设计的，所以Java堆中经常会出现“新生代”，“老生代”等名词，但是这仅仅是部分垃圾收集器的共同特性，而非某个Java虚拟机的固有内存分布。“将Java内存进行细分只是为了更好地回收内存，或者更快的分配内存。”</p>
+</blockquote>
+<p>​<img src="/../images/net-img-hotspot-heap-structure-20230507002539-9hxh0u5.png" alt="堆内存结构">​</p>
+<p>大部分情况，对象都会首先在Eden区域分配，在一次新生代垃圾回收后，如果对象还存活，则会进入S0或者S1中，它的年龄也会加一，当它的年龄增加到一定程度（默认15），就会进入老年代。阈值可以通过参数<code>-XX:MaxTenuringThreshold</code>​ 来设置。</p>
+<p><em>但是HotSpot会在运行的时候执行动态年龄计算：HotSpot会遍历所有对象，按照年龄从小到大的顺序，对所占的内存大小进行累加，当累加值大于survivor区的一半的时候，就会取它和</em>​*<code>MaxTenuringThreshold</code>*​​的较小值，作为新的年龄阈值。（感觉这种方式在一定程度上避免了survivor区有大量低年龄的对象挤占空间的现象；但挤占survivor区又有什么样的后果呢？）</p>
+<h2 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h2><blockquote>
+<p>方法区属于是JVM运行时数据区域的一块逻辑区域，是各个线程共享的内存区域。</p>
+</blockquote>
+<p>当我看JavaGuide中关于方法区实现的部分“永久代和元空间是方法区的具体实现”这句话时，产生了一个疑问——<strong>永久代不是属于堆的分区吗，而方法区又是堆外的空间，为什么这两个东西会混为一谈？</strong>在《深入理解Java虚拟机（第三版）》P46给出了答案。</p>
+<blockquote>
+<p>在JDK8以前，许多Java程序员都习惯在HotSpot虚拟机上开发、部署程序，很多人都更愿意把方法区称呼为“永久代”，或将二者混为一谈。<strong>但是本质上两者并不等价，</strong>仅仅因为HotSpot团队选择把收集器分代设计扩展至方法区，或者说是使用永久代来实现方法区。这样就可以使用堆的垃圾回收器来管理方法区，从而可以不用单独开发方法区的垃圾回收器。但是这种设计并不好，因为堆的内存空间是有上限的，这样用永久代实现方法区，会导致方法区有较小的内存空间；并且在后期Oracle准备把JRockit中优秀的部分移植到HotSpot的时候，这种实现方式也成为了极大的障碍。所以从JDK6的时候HotSpot团队就打算将永久代废弃，到JDK7就已经将原本放在永久代的字符串常量池、静态变量等移除，<em>到了JDK8，完全废弃了永久代的概念</em>。</p>
+</blockquote>
+<p>方法区会存储已被虚拟机加载的<strong>类信息、字段信息、方法信息、常量、静态变量、即时编译器编译后的代码缓存等数据</strong>。（这部分需要看了之后的内存，进行补充）</p>
+<p>JDK1.8之后的时候，使用元空间实现方法区，使用下面的一些常用参数：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-XX:MetaspaceSize=N <span class="comment">//设置 Metaspace 的初始（和最小大小）</span></span><br><span class="line">-XX:MaxMetaspaceSize=N <span class="comment">//设置 Metaspace 的最大大小</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h3><p>运行时常量池（Runtime Constant Pool）是方法区的一部分。</p>
+<blockquote>
+<p>Class文件中除了有类的版本，字段，方法，接口等描述信息外，还有一项信息时常量池表（Constant Pool Table），用于存放<strong>编译器生成的各种字面量与符号引用</strong>，这部分内容将在类加载后存放到方法区的运行时常量池中。</p>
+</blockquote>
+<p>也就是说，运行时常量池会存储“<strong>字面量</strong>”和“<strong>符号引用</strong>”。</p>
+<p><em>这里简单介绍一下什么是“符号引用”和“直接引用”。</em></p>
+<p><strong>符号引用</strong></p>
+<p>符号引用可以是任何形式的字面量，<u>只要使用时能够无歧义的定位目标即可</u>。<em>但是符号引用的字面量形式是被明确定义在Java虚拟机规范中，所以不用担心不同虚拟机无法读取相关符号引用。</em></p>
+<p><strong>直接引用</strong></p>
+<p>直接引用可以是直接指向目标的指针；相对偏移量或者一个能间接定位到目标的句柄。<em>直接引用是和虚拟机布局相关，所以不同的虚拟机实例上翻译出来的直接引用一般不会相同。如果有了直接引用，那引用的目标必定已经被加载到内存中了。</em></p>
+<blockquote>
+<p>类加载过程分为：加载—&gt;验证—&gt;准备—&gt;<strong>解析</strong>—&gt;初始化这 5个阶段，<u>符号引用转换为直接引用就发生在解析阶段</u>，解析阶段可能在初始化前，也可能在初始化之后。</p>
+</blockquote>
+<h2 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h2><blockquote>
+<p>直接内存是一种特殊的内存缓冲区，并不在Java堆或者方法区中分配，而是通过JNI的方式在本地内存上分配的。直接内存并不是虚拟机运行时数据区的一部分，但是也会出现<code>OutOfMemoryError</code>​。</p>
+</blockquote>
+<blockquote>
+<p>**JNI:**从JDK1.1开始就成为Java平台的一部分，它提供的一系列API允许Java和其它语言进行交互，实现了在Java代码中调用其它语言的函数。</p>
+</blockquote>
+<p>JNI能做的事：</p>
+<ul>
+<li>需要实现的功能依赖于操作系统底层特性，Java无法独立完成时可以借助其它的语言。</li>
+<li>在Java中直接调用其它语言已经完成的一些现成功能。</li>
+<li>使用更加底层的语言实现程序对时间敏感性或对性能的要求。</li>
+</ul>
+<p>​<img src="/../images/2021062215083395-20230506112442-pse9jcu-20230506225102-ckyazcc.jpg" alt="2021062215083395-20230506112442-pse9jcu">​</p>
+<p><em>说回直接内存，为什么要是用直接内存呢，它又有什么优势呢？</em></p>
+<h3 id="文件读写过程"><a href="#文件读写过程" class="headerlink" title="文件读写过程"></a>文件读写过程</h3><p><strong>传统方式</strong></p>
+<p>Java本身不具备磁盘的读写能力，要想实现磁盘读写，必须调用操作系统提供的函数（Native方法）。在调用了本地方法之后，CPU从用户态切换到了内核态。在内核态下，读取的磁盘内容会先存储在“系统缓冲区”（在操作系统内存中划出的一块缓冲区），但是系统的缓冲区Java程序是没有办法获取的，所以在Java的堆内存中分配一块Java缓冲区，我们的Java程序要像访问磁盘数据，必须再从系统缓冲区的数据读入到Java缓冲区，然后CPU切换到用户态，Java程序进行数据操作，就通过这样的反复读取，实现文件的读写。</p>
+<p>​<img src="/../images/c897fc7c596b4670bc16c8ef9301bf1d-20230506131449-nt1t8ny-20230506225202-tvep0ht.png" alt="c897fc7c596b4670bc16c8ef9301bf1d-20230506131449-nt1t8ny">​</p>
+<p><strong>使用JNI方式</strong></p>
+<p>​<code>ByteBuffer bb = ByteBuffer.allocateDirect(_1Mb);</code>​使用代码，以为着直接在操作系统划分出缓冲区，即direct memory，这块区域于之前不一样的地方就是这个内存区域Java程序和操作系统都可以直接访问，这样读写文件就少了一个中间商，速度会更快。</p>
+<blockquote>
+<p>总的来说，直接内存就是在Java堆之外的一块内存，它的使用会显著提高文件读写的性能。但也可能出现OutOfMemoryError异常。</p>
+</blockquote>
+<p>‍</p>
+<p>‍</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://javaguide.cn/java/jvm/memory-area.html#%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA%E5%9F%9F">《JavaGuide–Java内存区域详解》</a></li>
+<li>《深入理解Java虚拟机–第二章Java内存区域与内存溢出异常》</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45167987/article/details/124948539">JVM的符号引用和直接引用是什么</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jb51.net/article/215627.htm">详解JNI到底是什么</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/PurineKing/article/details/124934265">JVM直接内存</a></li>
+</ul>
+<h1 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h1><ul>
+<li><p><input checked="" disabled="" type="checkbox"> 
+jdk中本地内存是做什么的？怎么进行区分？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> JNI是什么方式？</li>
+</ul>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+元空间和堆是什么样子的？这都是怎么分辨的？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 元空间在本地内存中，而堆是在JVM内存中，元空间是方法区的实现方式之一，并不受JVM的内存约束。</li>
+</ul>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+native堆是什么意思？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 就是保存native方法的堆</li>
+</ul>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+程序计数器为什么是唯一一个不会出现outofMemeryError的内存区域？是因为定长吗？</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+什么是句柄？</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+关于虚拟机栈的问题</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 局部变量表里面存的是各种数据类型还是相关的数据值？</li>
+<li><input checked="" disabled="" type="checkbox"> 操作数栈存放的是什么样的中间计算值？</li>
+<li><input checked="" disabled="" type="checkbox"> 栈的动态链接是什么意思，没理解</li>
+<li><input checked="" disabled="" type="checkbox"> 方法返回地址是什么？</li>
+</ul>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+关于堆的问题</p>
+<ul>
+<li><input disabled="" type="checkbox"> 有没有什么垃圾回收器的源码可以看看，到底是怎么区分新生代老年代的，</li>
+<li><input checked="" disabled="" type="checkbox"> 到底为什么用这种思维模式进行设计的？（将Java堆细分的目的只是为了更好的回收内存，或者更快分配内存。）</li>
+<li><input disabled="" type="checkbox"> <strong>动态年龄计算</strong>用在哪里？需要自己去设计是否开启吗？</li>
+</ul>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+关于方法区</p>
+<ul>
+<li><input disabled="" type="checkbox"> 方法区中到底存了什么东西，有没有源码，有没有更底层的东西？</li>
+<li><input checked="" disabled="" type="checkbox"> 什么是字面量，什么是符号引用？</li>
+</ul>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+字符串常量池到底是哪里的？</p>
+<ul>
+<li><input disabled="" type="checkbox"> 用来干嘛的？</li>
+</ul>
+</li>
+</ul>
+<p>‍</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#JVM" >
+    <span class="tag-code">JVM</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/05/05/HttpClient%E7%9A%84%E4%BD%BF%E7%94%A8/">
+        <span class="nav-arrow">← </span>
+        
+          HttpClient的使用
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E8%AF%A6%E8%A7%A3"><span class="toc-nav-text">Java内存区域详解</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%A7%81%E6%9C%89"><span class="toc-nav-text">线程私有</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88%EF%BC%88VM-Stack%EF%BC%89"><span class="toc-nav-text">虚拟机栈（VM Stack）</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%B1%80%E9%83%A8%E5%8F%98%E9%87%8F%E8%A1%A8"><span class="toc-nav-text">局部变量表</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%93%8D%E4%BD%9C%E6%95%B0%E6%A0%88"><span class="toc-nav-text">操作数栈</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%8A%A8%E6%80%81%E9%93%BE%E6%8E%A5"><span class="toc-nav-text">动态链接</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%96%B9%E6%B3%95%E8%BF%94%E5%9B%9E%E5%9C%B0%E5%9D%80"><span class="toc-nav-text">方法返回地址</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88%EF%BC%88Native-Method-Stack%EF%BC%89"><span class="toc-nav-text">本地方法栈（Native Method Stack）</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8%EF%BC%88Program-Counter-Register%EF%BC%89"><span class="toc-nav-text">程序计数器（Program Counter Register）</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%85%B1%E6%9C%89"><span class="toc-nav-text">线程共有</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%A0%86"><span class="toc-nav-text">堆</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA"><span class="toc-nav-text">方法区</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="toc-nav-text">运行时常量池</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98"><span class="toc-nav-text">直接内存</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%96%87%E4%BB%B6%E8%AF%BB%E5%86%99%E8%BF%87%E7%A8%8B"><span class="toc-nav-text">文件读写过程</span></a></li></ol></li></ol></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/05/07/JVM内存区域详解/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
