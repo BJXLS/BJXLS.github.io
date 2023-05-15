@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      监控的4个黄金指标和USE方法 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>监控的4个黄金指标和USE方法</h2>
+  <p class="post-date">2023-05-15</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="监控的4个黄金指标和USE方法"><a href="#监控的4个黄金指标和USE方法" class="headerlink" title="监控的4个黄金指标和USE方法"></a>监控的4个黄金指标和USE方法</h1><blockquote>
+<p>使用Prometheus可以很方便的实现个性化监控。但是，在实现监控时，我们到底应该监控哪些对象以及哪些指标？</p>
+</blockquote>
+<p>以下时常用的监控指标</p>
+<p>​<img src="/../images/image-20230515152328-1vfldtq.png" alt="image">​</p>
+<blockquote>
+<p><strong>白盒监控：</strong>这种方式是基于系统内部暴露的metrics ，在白盒类别中，我们有完整的系统地图，我们知道关于过程和组件的每一个细节，对我们来说没有什么是隐藏或封闭的。 它包括日志、接口，如JVM概要分析接口或HTTP Handler发出的内部统计信息。 这种监控类型是否成功取决于我们使用正确的instrumentation来检查系统内部结构。 白盒允许检测到即将发生的问题，失败重试，当然，包括显而易见的错误。</p>
+<p><strong>黑盒监控：</strong>这种方式是基于测试用户可以看到的外部可见行为。 我们不知道系统内部是如何工作，但我们可以在不同条件下（时间、地理位置、连接方法，不同的电脑和或操作系统等）量化出指标在哪里扩大超过或有显著的变化；这种方法会让你的用户有一定了解如何使用你的服务，但通常不会帮助你防止问题的出现。</p>
+</blockquote>
+<h2 id="4个黄金指标"><a href="#4个黄金指标" class="headerlink" title="4个黄金指标"></a>4个黄金指标</h2><blockquote>
+<p>Four Golden Signals是Google针对大量分布式监控的经验总结，4个黄金指标可以在服务级别帮助衡量终端用户体验、服务中断、业务影响等层面的问题。主要关注与以下四种类型的指标：<strong>延迟，通讯量，错误以及饱和度。</strong></p>
+</blockquote>
+<ul>
+<li><p>延迟：服务请求所需时间</p>
+</li>
+<li><p>通讯量：监控当前系统的流量，用于衡量服务的容量需求。</p>
+</li>
+<li><p>错误：监控当前系统所发生的错误请求，衡量当前系统发生错误的速率。</p>
+<ul>
+<li>不仅是显示错误，隐式错误也要注意（可能需要主动在服务内部添加埋点）</li>
+</ul>
+</li>
+<li><p>饱和度：衡量当前服务的饱和度</p>
+<ul>
+<li>主要强调最能影响服务状态的受限制的资源。 每个资源都有一个限制，之后性能将降低或变得不可用。适用于CPU利用率，内存使用率，磁盘容量等资源。例如，当CPU已满时，可能会导致响应延迟，等等。通过仪表盘监控这些指标，可以帮助我们在容量达到饱和之前主动调整。</li>
+</ul>
+</li>
+</ul>
+<p>​<img src="/../images/image-20230515154731-dniusvc.png" alt="image">​</p>
+<h2 id="RED方法"><a href="#RED方法" class="headerlink" title="RED方法"></a>RED方法</h2><blockquote>
+<p>RED方法是Weave Cloud在基于Google的“4个黄金指标”的原则下结合Prometheus以及Kubernetes容器实践，细化和总结的方法论，特别适合于云原生应用以及微服务架构应用的监控和度量。它是“四个黄金指标”的子集，专注于微服务框架。</p>
+</blockquote>
+<ul>
+<li>请求速率：服务每秒接受的请求数。</li>
+<li>请求错误：每秒失败的请求数。</li>
+<li>请求耗时：每个请求的耗时。</li>
+</ul>
+<p><em>在“4大黄金信号”的原则下，RED方法可以有效的帮助用户衡量云原生以及微服务应用下的用户体验问题。</em></p>
+<h2 id="USE方法"><a href="#USE方法" class="headerlink" title="USE方法"></a>USE方法</h2><blockquote>
+<p>USE方法更侧重于基础架构监控，可以用来监控物理设备等资源。</p>
+</blockquote>
+<ul>
+<li>使用率：关注系统资源的使用情况。一旦达到100%意味着系统达到瓶颈，无法再处理更多任务。</li>
+<li>饱和度：系统无法服务的额外工作程度。（CPU的平均运行排队长度）</li>
+<li>错误：错误计数。（网卡再数据包传输过程中检测到的以太网网络冲突了14次）</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.prometheus.wang/promql/prometheus-promql-best-praticase.html">Prometheus中文网</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15057823/3552160">系统监控的四个黄金指标</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/HGVTM30j5I9T8Q6B8DEvnQ">运维监控的终极秘籍，盘它！</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/dongshi_89757/article/details/125251416">如何利用RED和USE metrics实现监控</a></li>
+</ul>
+<p>‍</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#系统监控" >
+    <span class="tag-code">系统监控</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/05/07/JVM%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E8%AF%A6%E8%A7%A3/">
+        <span class="nav-arrow">← </span>
+        
+          JVM内存区域详解
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E7%9B%91%E6%8E%A7%E7%9A%844%E4%B8%AA%E9%BB%84%E9%87%91%E6%8C%87%E6%A0%87%E5%92%8CUSE%E6%96%B9%E6%B3%95"><span class="toc-nav-text">监控的4个黄金指标和USE方法</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#4%E4%B8%AA%E9%BB%84%E9%87%91%E6%8C%87%E6%A0%87"><span class="toc-nav-text">4个黄金指标</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#RED%E6%96%B9%E6%B3%95"><span class="toc-nav-text">RED方法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#USE%E6%96%B9%E6%B3%95"><span class="toc-nav-text">USE方法</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/05/15/监控的4个黄金指标和USE方法/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
