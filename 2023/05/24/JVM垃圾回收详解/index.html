@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      JVM垃圾回收详解 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>JVM垃圾回收详解</h2>
+  <p class="post-date">2023-05-24</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>Java内存运行时的内存区域，程序计数器、虚拟机栈和本地方法栈这三个部分，是跟随着栈的生命周期。而且，所需要的内存在一开始的类结构中就确定下来了，因此这几个区域的内存分配和回收都具备确定性。</p>
+<p>我们这里主要考虑的是堆和方法区的内存的回收。</p>
+</blockquote>
+<h2 id="堆空间的基本结构"><a href="#堆空间的基本结构" class="headerlink" title="堆空间的基本结构"></a>堆空间的基本结构</h2><ul>
+<li><p>在JDK8以前堆内存通常被分为下面三个部分</p>
+<ul>
+<li><p>新生代（Young Generation）</p>
+<ul>
+<li><p>Eden</p>
+</li>
+<li><p>Survivor</p>
+<ul>
+<li>S0</li>
+<li>S1</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>老年代（Old Generation）</p>
+</li>
+<li><p>永久代（Permanent Generation）</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><em>但是在JDK8中，永久代被元空间替代，所在的内存区域也从堆中转移到了直接内存中。所以我们之后关于JVM内存空间的讨论就只又新生代和老年代。</em></p>
+<h2 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h2><p>。。。</p>
+<h2 id="垃圾收集算法"><a href="#垃圾收集算法" class="headerlink" title="垃圾收集算法"></a>垃圾收集算法</h2><h3 id="分代收集理论"><a href="#分代收集理论" class="headerlink" title="分代收集理论"></a>分代收集理论</h3><blockquote>
+<p>当前的商业虚拟机的垃圾收集器，大多数都遵循了“分代收集”（Generational Collection）的理论进行设计，分代收集名为理论，<strong>实质是一套符合大多数程序运行实际情况的经验法则</strong></p>
+</blockquote>
+<p>它建立在三个分代假说之上：</p>
+<ul>
+<li>弱分代假说（Weak Generational Hypothesis）：绝大多数对象都是朝生夕灭。</li>
+<li>强分代假说（Strong Generational Hypothesis）：熬过越多次垃圾收集过程的对象就越难以消亡。</li>
+<li>跨代引用假说（Intergenerational Reference Hypothesis）：跨代引用相对于同代引用来说仅占极少数。</li>
+</ul>
+<p>前两条法则奠定了常用的垃圾收集器的一致的设计原则，即分代设计——收集器将Java堆分为不同区域，将对象按照年龄分配到不同区域存储。</p>
+<p><em>这样又什么好处呢？如果一个区域中大多数对象都是朝生夕灭，难以熬过垃圾收集过程的话，那么我们每次回收只需要标记需要留存的对象就可以了，节省了标记对象的代价；而熬过越多垃圾收集过程的对象越难消亡，那将这些对象集中起来，虚拟机就可以对这部分进行较低频率的垃圾回收，提升了垃圾回收的效率。</em></p>
+<p>同时，第三条假说，则是说明跨代引用的概率较低，我们不需要每次分代垃圾收集时都为了跨代引用去便利新生代和老生代两个部分的GC Root（因为回想引用的两个对象，更倾向于同代）。只需要在新生代上建立全局数据结构（记忆集，Remembered Set）去存储哪一“块”老年代会存在跨代引用，每次Minor GC时，只用扫描这些“块”即可。</p>
+<h3 id="标记-清除算法"><a href="#标记-清除算法" class="headerlink" title="标记-清除算法"></a>标记-清除算法</h3><p>标记-清除（Mark-Sweep）算法是最基础的垃圾收集算法。</p>
+<blockquote>
+<p>首先标记出所有需要回收的对象，在标记完成后，统一回收掉所有被标记的对象，也可以反过来，标记存活的对象，统一回收所有未被标记的对象。而，标记的过程就可以通过“前置知识中可达性分析”来获得。</p>
+</blockquote>
+<p>但是它有两个主要的缺点：</p>
+<ul>
+<li>执行效率不稳定：如果Java堆中有大量对象，单独的标记和清除动作都非常耗时，并且会根据对象数量大幅增长。</li>
+<li>空间碎片化问题：由于标记清除只针对单个对象，所以经过清除后，堆中会产生大量不连续的内存碎片。这会导致之后分配大对象受到限制，不得不提前触发另一次垃圾回收动作。</li>
+</ul>
+<p>​<img src="/../images/image-20230522162111-xpc5te7.png" alt="image">​</p>
+<h3 id="标记-复制算法"><a href="#标记-复制算法" class="headerlink" title="标记-复制算法"></a>标记-复制算法</h3><p>标记-复制算法是Fenichel为了解决标记-清除算法面对大量可回收对象时执行效率较低的问题在1969年提出的垃圾收集算法，也称为“半区复制（Semispace Copying）”——将可用内存分为两个大小相等的块，每次只使用其中一块。当这一块的内存空间使用完成之后，就进行标记-复制过程，也就是标记可存活的对象，将它们复制到另一块内存中，并清除原来的块内容，以此往复，两块内存循环使用。</p>
+<p><em>当内存中，大部分对象都是无法熬过这一次垃圾回收时，标记-复制算法效率非常高；相反，就会有非常多的时间花费在对象的复制上。同时，标记-复制算法也不存在空间碎片的问题，但是使用的内存也直接减少一半。</em></p>
+<blockquote>
+<p>现在商用的Java虚拟机大多都优先采用标记-复制算法，IBM公司曾做过专门的研究——新生代中的对象有98%熬不过第一轮收集。</p>
+</blockquote>
+<p>也就是说，在正常情况下，大部分的对象是会被回收的。所以，我们就不需要按照1：1的空间占比划分空间。</p>
+<p>在1989年，Andrew Appel针对“朝生夕灭”特点的对象，提出了优化版的复制分代策略——Appel式回收。HotSpot虚拟机的Serial、ParNew等<strong>新生代收集器</strong>均采用了这种策略来设计新生代的内存布局。Appel式回收的具体做法是把新生代分为一块较大的Eden空间和两块较小的Survivor空间，每次分配只用Eden和其中一块Survivor，他们的空间占比HotSpot默认是8：1：1。每次复制，会将存或对象赋值到剩余的那一块Survivor上，然后直接清理掉剩余的部分。</p>
+<p><em>这样每次使用的内存是总内存的90%。当然，并不是所有情况都是98%的对象可被回收，当存活对象大于Survivor的空间大小时，就需要进行分配担保（Handle Promotion）。</em></p>
+<p>​<img src="/../images/image-20230522165600-f6djea7.png" alt="image">​</p>
+<p>在1：1的复制算法的情况下，由以下两个主要缺点：</p>
+<ul>
+<li>会浪费50%的内存空间</li>
+<li>在大量对象存活的情况下，复制效率非常低下（如老年代的情况）</li>
+</ul>
+<h3 id="标记-整理算法"><a href="#标记-整理算法" class="headerlink" title="标记-整理算法"></a>标记-整理算法</h3><p>标记-复制算法有两大缺点（浪费空间；大量对象存活的情况下，效率低下）。这让他很难适用老年代的应用场景。</p>
+<p>针对老年代对象的特征，Edward Lueders在1974年提出了“标记-整理”算法，它的标记过程和“标记-清除”算法过程相同，但是后续过程是将存活对象向内存空间的一端进行移动，再将边界外的对象进行清除。</p>
+<blockquote>
+<p><strong>但是这是一种利弊共存的方式</strong>：如果移动存活对象，在老年代这种场景下，就需要移动大量对象，而且在移动过程中，必须“stop the world”。</p>
+<p>但如果不移动的话，“标记-清除”算法的空间碎片问题也一样要命，因为需要更复杂的空间管理方式（分区空闲分配链表）。</p>
+</blockquote>
+<p>基于以上的两种情况，移动内存回收会更复杂，不移动则内存分配时会更复杂。不移动，JVM的停顿时间会更短，但是整个程序的吞吐量会降低。</p>
+<p>HotSpot虚拟机里关注吞吐量的Parallel Scavenge收集器是基于标记-整理算法的，而关注延迟的CMS收集器是基于标记-清除算法的。还有</p>
+<p>另一种中和的方式，解决方案可以不在内存分配和访问上增加太大的额外负担。平时都使用标记-清除算法，暂时容忍内存碎片，知道内存空间的碎片化成都已经影响到对象分配时，再进行标记-整理算法收集一次，以获得规整的内存空间。前面提到的CMS收集器面临碎片过多时采用的就是这种处理办法。</p>
+<h2 id="垃圾收集器"><a href="#垃圾收集器" class="headerlink" title="垃圾收集器"></a>垃圾收集器</h2><blockquote>
+<p>垃圾收集算法是内存回收的方法论，垃圾收集器就是垃圾回收的具体执行者。《Java虚拟机规范》并没有对垃圾收集器的实现做出规定，所以不同的虚拟机包含的不同垃圾收集器都可能会有很大差别。</p>
+</blockquote>
+<p>各种经典的垃圾回收器的关系图如下：</p>
+<p>​<img src="/../images/image-20230522184706-bq7br1b.png" alt="image"></p>
+<p>迄今为止还没有最好的垃圾收集器出现，更多的是对具体应用场景选择最合适的垃圾收集器。</p>
+<h3 id="Serial收集器"><a href="#Serial收集器" class="headerlink" title="Serial收集器"></a>Serial收集器</h3><blockquote>
+<p>Serial是最基础，历史最悠久的收集器，曾经（在JDK1.3.1之前）是HotSpot虚拟机新生代收集器的唯一选择。</p>
+</blockquote>
+<p>它是单线程的，并不是意味着只使用一个CPU核心，而是说在Serial进行垃圾回收时，会“stop the world”。这种特性有利有弊，弊端就是单线程造成的stop the world会严重影响用户体验；好处就是，在内存较小，较为简单的客户端环境下，Serial收集器会凸显它简单高效的特点，尤其因为不需要进行进程的切换，Serial的额外内存消耗时所有收集器中最小的。</p>
+<p>由上的特性可知，Serial收集器采用的是标记-复制算法。</p>
+<p>​<img src="/../images/image-20230523124606-ytjuip9.png" alt="image">​</p>
+<h3 id="ParNew收集器"><a href="#ParNew收集器" class="headerlink" title="ParNew收集器"></a>ParNew收集器</h3><p>ParNew是Serial收集器的多线程版本（都是针对新生代的收集器），也就是除了垃圾收集过程是多线程的其他几乎所有操作都和Serial收集器相同。并且目前只有ParNew和CMS能够相互配合使用，但也正因为和CMS的过度绑定，导致它成为HotSpot历史上第一个被淘汰的收集器。</p>
+<h3 id="Parallel-Scavenge收集器"><a href="#Parallel-Scavenge收集器" class="headerlink" title="Parallel Scavenge收集器"></a>Parallel Scavenge收集器</h3><p>Parallel Scavenge也是一款新生代收集器，使用标记-复制算法，也是进行并行收集。但是它与CMS等其它垃圾收集器不同的地方在于它关注的是<strong>系统吞吐量</strong>，它的目的就是达到一个可控制的吞吐量，即处理器运行用户代码时间和处理器总处理时间（需要加上垃圾回收的实际）的比值。<br>你可以设置它最大垃圾收集停顿时间和垃圾收集时间占总时间的比值。</p>
+<p>同时它还有一个很特别的地方就是可以通过设置，允许收集器在巡行期间根据系统的运行情况，动态调整相关参数。这也是Parallel Scavenge收集器区别于ParNew收集器的一个重要特征。<br>‍</p>
+<h3 id="Serial-Old收集器"><a href="#Serial-Old收集器" class="headerlink" title="Serial Old收集器"></a>Serial Old收集器</h3><p>‍这是Serial收集器的老年代版本，使用的是标记-整理算法。</p>
+<ul>
+<li>主要有两种用途<ul>
+<li>在JDK5及以前与Parallel Scavenge收集器搭配使用</li>
+<li>作为CMS收集器发生失败时的后备预案</li>
+</ul>
+</li>
+</ul>
+<h3 id="Parallel-Old收集器"><a href="#Parallel-Old收集器" class="headerlink" title="Parallel Old收集器"></a>Parallel Old收集器</h3><p>Parallel Old是Parallel Scavenge收集器的老年代版本，支持多线程，基于标记-整理算法。这个收集器知道JDK6才出现，解决了Parallel Scavenge之前只能和Serial Old收集器合作的尴尬境地。</p>
+<p>在注重吞吐量或者处理器资源较为稀缺的场景，都可以优先考虑Parallel Scavenge加Parallel Old收集器的组合。<br>‍</p>
+<h3 id="CMS收集器"><a href="#CMS收集器" class="headerlink" title="CMS收集器"></a>CMS收集器</h3><p>‍</p>
+<h3 id="Garbage-First收集器"><a href="#Garbage-First收集器" class="headerlink" title="Garbage First收集器"></a>Garbage First收集器</h3><p>‍</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
+<li><input disabled="" type="checkbox"> 内存布局–是垃圾回收器决定的？那内存分配的时候是什么部分进行操作的？又是如何遵循这种布局的？</li>
+<li><input disabled="" type="checkbox"> 什么是写屏障</li>
+</ul>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>《深入理解Java虚拟机——第三章》</li>
+<li><a target="_blank" rel="noopener" href="https://javaguide.cn/java/jvm/jvm-garbage-collection.html#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95">JavaGuide–JVM垃圾回收详解</a></li>
+</ul>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#JVM" >
+    <span class="tag-code">JVM</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/05/24/QPS/">
+        <span class="nav-arrow">← </span>
+        
+          QPS
+        
+      </a>
+    
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%A0%86%E7%A9%BA%E9%97%B4%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-nav-text">堆空间的基本结构</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-nav-text">前置知识</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AE%97%E6%B3%95"><span class="toc-nav-text">垃圾收集算法</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%86%E4%BB%A3%E6%94%B6%E9%9B%86%E7%90%86%E8%AE%BA"><span class="toc-nav-text">分代收集理论</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A0%87%E8%AE%B0-%E6%B8%85%E9%99%A4%E7%AE%97%E6%B3%95"><span class="toc-nav-text">标记-清除算法</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A0%87%E8%AE%B0-%E5%A4%8D%E5%88%B6%E7%AE%97%E6%B3%95"><span class="toc-nav-text">标记-复制算法</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%A0%87%E8%AE%B0-%E6%95%B4%E7%90%86%E7%AE%97%E6%B3%95"><span class="toc-nav-text">标记-整理算法</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">垃圾收集器</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Serial%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">Serial收集器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#ParNew%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">ParNew收集器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Parallel-Scavenge%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">Parallel Scavenge收集器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Serial-Old%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">Serial Old收集器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Parallel-Old%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">Parallel Old收集器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#CMS%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">CMS收集器</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Garbage-First%E6%94%B6%E9%9B%86%E5%99%A8"><span class="toc-nav-text">Garbage First收集器</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/05/24/JVM垃圾回收详解/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
