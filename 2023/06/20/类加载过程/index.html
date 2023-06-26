@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      类加载过程 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>类加载过程</h2>
+  <p class="post-date">2023-06-20</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h1 id="类加载过程"><a href="#类加载过程" class="headerlink" title="类加载过程"></a>类加载过程</h1><blockquote>
+<p>一个类型从被加载到虚拟机内存开始，到卸载出内存为止，整个生命周期有七个步骤：加载（Loading）、验证（Verification）、准备（Preparation）、解析（Resolution）、初始化（Initialization）、使用（Using）和卸载（Unloading）。（验证-准备-解析 统称为连接（Linking））</p>
+</blockquote>
+<p>​<img src="/../images/image-20230619184136-1xd08o3.png" alt="image">​</p>
+<p>这其中只有<strong>加载、验证、准备、初始化和卸载</strong>这五个阶段的顺序是确定的。解析阶段在初始化之前或者之后都可能出现。</p>
+<p><em>《Java虚拟机规范》严格规定了只有六种情况必须立即对类进行“初始化”：</em></p>
+<ol>
+<li><p>遇到<code>new</code>​、getstatic、putstatic和invokestatic这四条字节码指令时，如果欸行没有进行过初始化，则需要先初始化。可能产生以上四条指令的典型Java代码场景有：</p>
+<ol>
+<li>使用new</li>
+<li>读取设置一个类型的静态字段</li>
+<li>调用一个类型的静态方法的时候</li>
+</ol>
+</li>
+<li><p>使用java.lang.reflect包的方法对类型进行反射调用的时候</p>
+</li>
+<li><p>初始化类的时候，若其父类还没有初始化，则需要进行父类的初始化</p>
+</li>
+<li><p>虚拟机启动时，用户需要只当一个要执行的主类，虚拟机会先初始化这个主类</p>
+</li>
+<li><p>当使用JDK7新加入的动态语言支持，如果一个<code>java.lang.invoke.MethodHandle</code>​实例最后的解析结果为<code>REF_getStatic</code>​、<code>REF_putStatic</code>​、<code>REF_invokeStatic</code>​、<code>REF_newInvokeSpecial</code>​四种类型的方法句柄，若这些句柄对应的类没有初始化，则需先初始化。</p>
+</li>
+<li><p>当一个接口中定义了JDK8新加入的默认方法（default），如果该接口的实现类发生了初始化，那该接口要在其之前被初始化。</p>
+</li>
+</ol>
+<h2 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h2><p>在加载阶段，Java虚拟机需要完成以下三件事：</p>
+<ol>
+<li>通过类的全限定名称来获取定义次类的二进制字节流</li>
+<li>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构</li>
+<li>在内存中生成一个代表这个类的<code>java.lang.Class</code>​对象，作为方法区这个类的各种数据的访问入口。</li>
+</ol>
+<p><em>相对于类加载过程中的其它阶段，非数组类型（数组类本身不走类加载器，而是由JVM直接在内存中动态构造出来，但是数组类的元素类型最终由类加载器加载）的加载阶段是自定义程度最高的阶段，因为我们可以使用自定义的类加载器去完成（像阿里的Pandora Boot就是重写类加载器实现了不同环境加载不同版本包的功能）。</em></p>
+<h2 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h2><blockquote>
+<p>验证是连接阶段的第一步，这一阶段的目的是确保Class文件的字节流中包含的信息符合《Java虚拟机规范》的全部约束要求，保证这些信息被当作代码运行后不会危害虚拟机的自身安全。</p>
+</blockquote>
+<p>一开始的《Java虚拟机规范》并没有对验证阶段有详细的约束，直到2011年的《Java虚拟机规范（Java SE 7版）》才对验证阶段有了具体的描述。总体来说可以分为四个部分：<strong>文件格式验证</strong>、<strong>元数据验证</strong>、<strong>字节码验证</strong>和<strong>符号引用验证。</strong></p>
+<h3 id="文件格式验证"><a href="#文件格式验证" class="headerlink" title="文件格式验证"></a>文件格式验证</h3><p>验证字节流是否符合Class文件格式的规范，并且能被当前版本的虚拟机处理。可能包括：</p>
+<ul>
+<li>是否以魔数开头</li>
+<li>主、次版本是否在虚拟机可以处理的范围以内</li>
+<li>Class文件中各个部分及文件本身是否有被删除的或附加的其它信息</li>
+</ul>
+<h3 id="元数据验证"><a href="#元数据验证" class="headerlink" title="元数据验证"></a>元数据验证</h3><blockquote>
+<p>第二阶段是对字节码描述的信息进行<strong>语义分析</strong>，以保证其描述的信息符合《规范》要求。</p>
+</blockquote>
+<ul>
+<li>这个类是否有父类（除了object类都要有父类）</li>
+<li>这个类的父类是否继承了final类</li>
+<li>是否实现抽象父类的所有需要实现的方法</li>
+<li>等</li>
+</ul>
+<h3 id="字节码验证"><a href="#字节码验证" class="headerlink" title="字节码验证"></a>字节码验证</h3><blockquote>
+<p>是整个验证阶段最复杂的一个阶段，主要目的是通过数据流分析和控制流分析，确定程序语义是合法的、符合逻辑的。这阶段就要对类的方法体（Class文件中的Code属性）进行校验分析，保证被校验类的方法在运行时不会做出危害虚拟机安全的行为。</p>
+</blockquote>
+<p>。。。还不太理解，等具体实现之后对这部分进行补充</p>
+<h3 id="符号引用验证"><a href="#符号引用验证" class="headerlink" title="符号引用验证"></a>符号引用验证</h3><blockquote>
+<p>这部分主要是验证类是否缺少或者被禁止访问它依赖的某些外部类、方法、字段等资源。</p>
+</blockquote>
+<ul>
+<li>符号引用通过字符串描述的全限定名是否能找到对应的类</li>
+<li>符号引用的类、字段、方法的可访问性是否可被当前类访问。</li>
+<li>等</li>
+</ul>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><blockquote>
+<p>准备阶段是正式为类中定义变量（静态变量）分配内存并设置初始值的阶段。</p>
+</blockquote>
+<p><em>需要注意的是在JDK1.7及以前，运行时常量池是存放在方法区（永久代）中，但是在JDK8之后，运行时常量池被移动到了元空间（直接内存）中。</em></p>
+<p>在这个阶段会对非final值赋默认值（final值会直接赋定义的值）</p>
+<p>​<img src="/../images/image-20230620105716-mgnpwsg.png" alt="image">​</p>
+<h2 id="解析"><a href="#解析" class="headerlink" title="解析"></a>解析</h2><blockquote>
+<p>解析阶段是Java虚拟机将常量池内的符号引用替换为直接引用的过程</p>
+</blockquote>
+<p><em>《规范》中规定要求在执行</em>​*<code>anewarray</code><em>​</em>，<em>​<code>*checkcast*</code>​</em>等17个用于操作符号引用的字节码指令之前，先对他们所使用的符号引用进行解析。*</p>
+<p>解析动作主要准对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符这7类符号引用进行，分别对应常量池中<code>CONSTANT_Class_info</code>​、<code>CONSTANT_Fieldref_info</code>​、<code>CONSTANT_Methodref_info</code>​、<code>CONSTANT_InterfaceMethodref_info</code>​、<code>CONSTANT_MethodTYpe_info</code>​、<code>CONSTANT_MethodHandle_info</code>​、<code>CONSTANT_Dynamic_info</code>​、<code>CONSTANT_InvokeDynamic_info</code>​。</p>
+<p>。。。（详细解析过程，需要具体实现再进行补充）</p>
+<h2 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h2><blockquote>
+<p>类的初始化时类加载过程的最后一个步骤。在准备阶段变量已经被赋默认值了，初始化阶段将为根据程序编码进行变量和其它资源的真正赋值。</p>
+</blockquote>
+<p><em>初始化阶段就是执行类构造器</em>​*<code>&lt;clinit&gt;()</code><em>​</em>的过程。<em>​<code>*&lt;clinit&gt;()*</code>​</em>是Javac编译器的自动生成的。*</p>
+<ul>
+<li>​<code>&lt;clinit&gt;()</code>​是由编译器自动收集类中的所有类变量的赋值动作和静态语句块（static{}）中的语句合并产生的，编译器收集的顺序是由语句在源文件出现的顺序决定的，静态语句块中只能访问到定义在静态语句块之前的变量，定义在它之后的变量，在墙面的静态语句块可以赋值，但是不能访问。</li>
+<li>​<code>&lt;clinit&gt;()</code>​会从父类开始执行，所以第一个被执行的类肯定是<code>java.lang.Object</code>​</li>
+</ul>
+<p>‍</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
+<li><input disabled="" type="checkbox"> 什么时候方法进行初始化，看书不太清晰需要仔细归类一下。</li>
+<li><input disabled="" type="checkbox"> 类后面加.class是什么情况？</li>
+<li><input disabled="" type="checkbox"> 验证和解析是分开做的吗？为什么《深入理解》里面说“符号引用验证”是发生在“解析”阶段的？</li>
+<li><input disabled="" type="checkbox"> 在准备阶段就把类信息存入方法区了？那解析阶段的符号引用转化为直接引用是在常量池内直接修改吗？</li>
+<li><input disabled="" type="checkbox"> <clinit>()的使用还有点不太透彻，需要继续研究学习</li>
+</ul>
+<p>‍</p>
+<p>‍</p>
+<p>‍</p>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Java" >
+    <span class="tag-code">Java</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/06/18/Prometheus%E5%92%8CGrafana%E5%88%9B%E5%BB%BA%E5%93%8D%E5%BA%94%E6%97%B6%E9%97%B4%E7%83%AD%E5%8A%9B%E5%9B%BE/">
+        <span class="nav-arrow">← </span>
+        
+          Prometheus和Grafana创建响应时间热力图
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2023/06/26/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">
+        
+          类加载器
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B"><span class="toc-nav-text">类加载过程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8A%A0%E8%BD%BD"><span class="toc-nav-text">加载</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%AA%8C%E8%AF%81"><span class="toc-nav-text">验证</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%E9%AA%8C%E8%AF%81"><span class="toc-nav-text">文件格式验证</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%85%83%E6%95%B0%E6%8D%AE%E9%AA%8C%E8%AF%81"><span class="toc-nav-text">元数据验证</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%AD%97%E8%8A%82%E7%A0%81%E9%AA%8C%E8%AF%81"><span class="toc-nav-text">字节码验证</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E7%AC%A6%E5%8F%B7%E5%BC%95%E7%94%A8%E9%AA%8C%E8%AF%81"><span class="toc-nav-text">符号引用验证</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%87%86%E5%A4%87"><span class="toc-nav-text">准备</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E8%A7%A3%E6%9E%90"><span class="toc-nav-text">解析</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="toc-nav-text">初始化</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/06/20/类加载过程/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
