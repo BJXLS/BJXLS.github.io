@@ -10,7 +10,7 @@
   
   <title>
     
-      类加载器 | BJXLS&#39; BLOG
+      Java的Class文件结构 | BJXLS&#39; BLOG
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -192,8 +192,8 @@
 </header>
 
     <div id="article-banner">
-  <h2>类加载器</h2>
-  <p class="post-date">2023-06-26</p>
+  <h2>Java的Class文件结构</h2>
+  <p class="post-date">2023-07-02</p>
   <div class="arrow-down">
     <a href="javascript:;"></a>
   </div>
@@ -201,43 +201,63 @@
 <main class="app-body flex-box">
   <!-- Article START -->
   <article class="post-article">
-    <section class="markdown-content"><h1 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h1><blockquote>
-<p>类加载器（Class Loader）是用来在加载阶段实现“通过一个类的全限定名来获取描述该类的二进制字节流”操作的工具。它在类层次划分，OSGi，程序热部署，代码加密等领域大放异彩，是Java技术体系中一块重要的基石。</p>
+    <section class="markdown-content"><h1 id="Java的Class文件结构"><a href="#Java的Class文件结构" class="headerlink" title="Java的Class文件结构"></a>Java的Class文件结构</h1><blockquote>
+<p>作为类（或者接口）信息的载体，每个class文件都完整地定义了一个类。为了使Java程序可以“编写一次，处处运行”，Java虚拟机规范对class文件格式进行了严格的规定。</p>
 </blockquote>
-<p><em>比较两个类是否“相同”，是由类名和它的类加载器共同定义的。也就是说即使两个类来源于同一个class文件，被同一个Java虚拟机加载，只要加载他们的类加载器不同，那这两个类就必定不相等。</em></p>
-<p>在JDK8及以前的版本Java是使用三层类加载器：</p>
-<ul>
-<li>启动类加载器（Bootstrap Class Loader）：这个类加载器负责加载存放在<code>&lt;JAVA_HOME&gt;\lib</code>​目录，或被<code>-Xbootclasspath</code>​参数所指定的路径中存放的类库加载到虚拟机内存中。但是在Hotspot虚拟机中，启动类加载器是由C++编写的，所以在程序中用null代表。</li>
-<li>扩展类加载器（Extension Class Loader）：这个类加载器是在类<code>sum.misc.Launcher$ExtClassLoader</code>​中以Java代码的形式实现的。负责加载<code>&lt;JAVA_HOME&gt;\lib\ext</code>​目录中，或者被<code>java.ext.dirs</code>​系统变量指定的路径中所有的类库。但是在JDK9中被替代。</li>
-<li>应用程序类加载器（Application Class Loader）：这个类加载器由<code>sun.misc.Launcher$AppClassLoader</code>​来实现的。它负责加载用户类路径（ClassPath）上所有的类库。如果没有自己定义过的类加载器，一般情况下这个就是程序默认的类加载器。</li>
+<p>构成<code>class</code>​文件的基本数据单位是字节，可以把整个class文件当成一个字节流来处理。稍微大一些的数据由连续多个字节构成，这些数据在class文件中以大端（big-endian）顺序存放，即高位字节在前。为了描述class文件格式，《Java虚拟机规范》定义了<code>u1</code>​、<code>u2</code>​和<code>u4</code>​三种数据类型来表示1、2和4字节无符号整数。而相同类型的多条数据一般存储在表（table）中，表（table）由表头和表项组成，表头是<code>u2</code>​或<code>u4</code>​。假设表头的值为<code>3</code>​，则table的大小就为<code>3</code>​（后面会紧跟<code>3</code>​个表项）。</p>
+<p>下面是《Java虚拟机规范》定义的class文件格式：</p>
+<p>​<img src="/../images/image-20230701205157-v5w1zn7.png" alt="image">​</p>
+<p>​<code>magic</code>​：（魔数）标识class文件格式的作用，具有固定值<code>0xCAFEBABE</code>​</p>
+<p>​<code>minor_version</code>​,<code>major_version</code>​：这两项是产生该class文件的编译器的副版本和主版本号。JVM就是通过这两个值判断自己是否可以运行当前class文件的。其中，JDK8的魔数是<code>52</code>​。</p>
+<p>​<code>constant_pool_count</code>​：必须大于0，标识<code>constant_pool</code>​的大小。</p>
+<p>​<code>constant_pool[]</code>​：这是常量池数组，保存ClassFile及其子结构中引用的各种字符串常数，类名和其他常数的边长结果。值得注意的是，<code>constant_pool</code>​的索引是1-(n-1)的，<code>constant_pool[0]</code>​是保留为Java虚拟机内部使用的，不会出现在ClassFile中。</p>
+<p>​<code>access_flags</code>​：是类和接口声明中使用的修饰符的掩码，标志着当前类的访问权限（Public，Final。。。）</p>
+<p>​<code>this_class</code>​：这项的值是对<code>constant_pool</code>​的一个索引，指向常量池中的某一项，而这一项一定会是一个<code>CONSTANT_class_info</code>​结构，一般是当前类的全限定名。</p>
+<p>​<code>supper_class</code>​：从字面就可以看出这是关于超类的定义，除了<code>java.lang.Object</code>​（<code>supper_class</code>​会是0）其它类都会有一个超类，也是指向常量池的一个有效索引。</p>
+<p>​<code>interfaces_count</code>​：给出该类或者接口类型的直接超接口的个数。（也就是该类实现的所有接口的个数）</p>
+<p>​<code>interfaces[]</code>​：每个值也都是对常量池的索引。比如下图是<code>java.lang.String.class</code>​的<code>interfaces</code>​属性</p>
+<p>​<img src="/../images/image-20230702154416-z15u0n8.png" alt="image">​</p>
+<p>​<code>fields_count</code>​：是fields标中<code>field_info</code>​结构的个数。</p>
+<p>​<code>fields[]</code>​：每个值是当前类或接口定义的字段信息，每一个项如下图。</p>
+<p>​​<img src="/../images/image-20230702161845-sb0chh1.png" alt="image"></p>
+<p>下图是JRE1.8的<code>java.lang.String.class</code>​文件的value内容，其中<code>name_index</code>​和<code>descriptor_index</code>​指向的都是常量池中的索引，也就是name_index的字面量是<code>constant_pool</code>​中的第210项。</p>
+<p>​<code>descriptor_index</code>​是描述符，《Java虚拟机规范》对此有清晰的定义：</p>
+<ol>
+<li>基本类型byte、short、char、int、long、float和double描述符是单个字母，分别是B、S、C、I、J、F和D。</li>
+<li>引用类型的描述符是<code>L+类的完全限定名+分号</code>​。</li>
+<li>数组类型是<code>[+数组元素类型描述符</code>​。</li>
+<li>方法相关的描述符是<code>（分号分隔的参数类型描述符）+返回值类型描述符</code>​，其中void返回值由单个字母<code>V</code>​表示。</li>
+</ol>
+<p>​<img src="/../images/image-20230702161951-eh0rphv.png" alt="image">​</p>
+<p>​<img src="/../images/image-20230702162237-3eo0m3y.png" alt="image">​</p>
+<p>​<code>methods_count</code>​和<code>methods</code>​：表示该类的类和接口中的方法，<code>methods</code>​中的项结构和<code>fields</code>​的大致相同，如下图。</p>
+<p>​<img src="/../images/image-20230702163631-hz8bnim.png" alt="image">​</p>
+<p><img src="/../images/image-20230702164033-3cf11dv.png" alt="image"></p>
+<p>​<code>attributes_count</code>​和<code>attributes</code>​：属性表是一个大杂烩，里面存储了各式各样的信息。这部分循序自定义属性，并且运行JVM在运行的时候忽略它们不能识别的属性值。</p>
+<h2 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h2><p>我这里跟着《自动动手写Java虚拟机》一书的第三章节实现了ClassFile的解析，有兴趣的同学可以移步到<a target="_blank" rel="noopener" href="https://github.com/BJXLS/jvmgo">代码地址</a>。自动动手实现一个简单版本后，确实对JVM的理解更加深入一些。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>《自己动手写Java虚拟机》– 第三章 解析class文件</li>
+<li>《Java虚拟机规范》</li>
 </ul>
-<p>这三个类加载器是以组合的关系联系在一起，这也引出了“双亲委派机制”。</p>
-<p><img src="/../images/image-20230620182153-8wmz1qc.png" alt="image"></p>
-<h2 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h2><blockquote>
-<p>双亲委派模型的工作过程是：如果一个类加载器收到了类加载的请求，它首先不会自己与尝试加载这个类，而是把这个请求委派给父类加载器去完成，请求会一直向上直到到达Bootstrap class loader，当父类反馈自己无法完成这个加载请求，子加载器才会去加载。</p>
-</blockquote>
-<p>这样的好处在于保证了Java程序运行的稳定性，因为它保证所有的类都会被从上而下的加载。例如<code>java.lang.Object</code>​类是由Bootstrap class loader加载的，那之后的所有加载器想要加载该类，都会打到Bootstrap class loader，从而保证整个运行环境中的Object类都是同一类。</p>
-<h3 id="如何破坏双亲委派机制"><a href="#如何破坏双亲委派机制" class="headerlink" title="如何破坏双亲委派机制"></a>如何破坏双亲委派机制</h3><p>我们可以通过继承<code>ClassLoader</code>​实现自定义加载器，如果我们不i想打破双亲委派模型，我们就重写<code>findClass()</code>​，如果想要打破双亲委派模型则需要重写<code>loadClass()</code>​。</p>
-<p>‍</p>
 <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
-<li><input disabled="" type="checkbox"> jdk &gt; jre（JVM,runtime library,..）</li>
-<li><input disabled="" type="checkbox"> jdk9的模块系统？</li>
-<li><input disabled="" type="checkbox"> 组合优于继承</li>
-<li><input disabled="" type="checkbox"> protected的实际使用场景和应用意义，哪些场景使用protected具体使用？</li>
-<li><input disabled="" type="checkbox"> jvm的热部署</li>
-<li><input disabled="" type="checkbox"> OSGi类加载器设计？</li>
-<li><input disabled="" type="checkbox"> 父类怎么判断自己无法加载，是遍历文件夹，看有没有吗？</li>
-<li><input disabled="" type="checkbox"> 深入拆解Tomcat&amp;Jetty</li>
+<li><p><input disabled="" type="checkbox"> 
+constant_pool[]到底保存的什么？</p>
+<ul>
+<li><input disabled="" type="checkbox"> 里面有很多种变量类型，有的是字面量，有的是引用</li>
 </ul>
-<p>‍</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+attribute存储的相关内容是什么？</p>
+</li>
+</ul>
 </section>
     <!-- Tags START -->
     
       <div class="tags">
         <span>Tags:</span>
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#JVM" >
+    <span class="tag-code">JVM</span>
   </a>
 
       </div>
@@ -248,20 +268,13 @@
   <div class="nav-container">
     <!-- reverse left and right to put prev and next in a more logic postition -->
     
-      <a class="nav-left" href="/2023/06/20/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E8%BF%87%E7%A8%8B/">
+      <a class="nav-left" href="/2023/06/26/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8/">
         <span class="nav-arrow">← </span>
         
-          类加载过程
+          类加载器
         
       </a>
     
-    
-      <a class="nav-right" href="/2023/07/02/Java%E7%9A%84Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/">
-        
-          Java的Class文件结构
-        
-        <span class="nav-arrow"> →</span>
-      </a>
     
   </div>
 
@@ -313,7 +326,7 @@
   <div class="toc-main">
     <strong class="toc-title">Catalog</strong>
     
-      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="toc-nav-text">类加载器</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B"><span class="toc-nav-text">双亲委派模型</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%A6%82%E4%BD%95%E7%A0%B4%E5%9D%8F%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="toc-nav-text">如何破坏双亲委派机制</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol></li></ol>
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Java%E7%9A%84Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-nav-text">Java的Class文件结构</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%A4%87%E6%B3%A8"><span class="toc-nav-text">备注</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol></li></ol>
     
   </div>
 </aside>
@@ -323,7 +336,7 @@
 
 <script>
   (function () {
-    var url = 'http://example.com/2023/06/26/类加载器/';
+    var url = 'http://example.com/2023/07/02/Java的Class文件结构/';
     var banner = ''
     if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
       $('#article-banner').css({
