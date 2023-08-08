@@ -10,7 +10,7 @@
   
   <title>
     
-      Java的异常和断言 | BJXLS&#39; BLOG
+      InnoDB(二) - 表结构 | BJXLS&#39; BLOG
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -192,8 +192,8 @@
 </header>
 
     <div id="article-banner">
-  <h2>Java的异常和断言</h2>
-  <p class="post-date">2023-04-10</p>
+  <h2>InnoDB(二) - 表结构</h2>
+  <p class="post-date">2023-08-08</p>
   <div class="arrow-down">
     <a href="javascript:;"></a>
   </div>
@@ -201,75 +201,92 @@
 <main class="app-body flex-box">
   <!-- Article START -->
   <article class="post-article">
-    <section class="markdown-content"><h1 id="Java的异常和断言"><a href="#Java的异常和断言" class="headerlink" title="Java的异常和断言"></a>Java的异常和断言</h1><ul>
-<li>异常</li>
-<li>断言</li>
-</ul>
-<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><blockquote>
-<p>在Java程序中，所有的异常都是由Throwable继承而来的，然后又分为Error和Exception。</p>
+    <section class="markdown-content"><h1 id="InnoDB-二-表结构"><a href="#InnoDB-二-表结构" class="headerlink" title="InnoDB(二) - 表结构"></a>InnoDB(二) - 表结构</h1><blockquote>
+<p>由于MySQL只是数据库操作系统，InnoDB是数据库，也就是MySQL使用不同的存储引擎，那么底层的存储文件会有所不同。</p>
 </blockquote>
-<p>​​<img src="/../images/image-20230418133209-olgbgy8.png" alt="image">​​</p>
+<p>这里关注InnoDB的存储文件，我们在创建一个database的同时，MySQL会在datadir中创建同名的目录。若我们继续在里面添加表，当前目录下就会出现三个文件<code>.opt</code>​、<code>.frm</code>​、<code>.ibd</code>​。</p>
+<p>​<code>.opt</code>​：存储当前数据库默认的字符集和字符校验规则。</p>
+<p>​<code>.frm</code>​：保存表结构，只要在数据库中建立表都会生成一个.frm文件。</p>
+<p>​<code>.ibd</code>​：保存表数据。</p>
+<h2 id="InnoDB逻辑存储结构"><a href="#InnoDB逻辑存储结构" class="headerlink" title="InnoDB逻辑存储结构"></a>InnoDB逻辑存储结构</h2><p>​<img src="/../images/image-20230725165253-ugg92fq.png" alt="image">​</p>
+<p>表空间由段（segment）、区（extent）、页（page）、行（row）组成。</p>
 <ul>
-<li><p>其中的Error类描述的是Java运行时系统内部错误和资源耗尽错误。我们的应用程序不应该抛出这种异常，而且一旦发生，我们一般无能为力。</p>
+<li><p>数据库中的记录都是按照行（row）进行存放的，每行记录根据不同的行格式，有不同的存储结构。</p>
 </li>
-<li><p>Exception由分为两个大类，一个是Runtime Exception，一个是非Runtime Exception。其中Runtime Exception是代表由编程错误导致的异常，包括</p>
+<li><p>而页（page）时InnoDB的读写单位，默认每个页16KB，也就是最多能保证16KB的连续存储空间。</p>
 <ul>
-<li>错误的强制类型转换</li>
-<li>数组访问越界</li>
-<li>访问null指针</li>
+<li>页的类型有很多，常见的有</li>
+<li><strong>数据页（数据表中的行记录存储）</strong></li>
+<li>溢出页</li>
+<li>undo页</li>
+<li>系统页</li>
+<li>事务数据页</li>
+<li>插入缓冲位图页</li>
+<li>插入缓冲空闲页</li>
+<li>未压缩的二进制大对象页</li>
+<li>压缩的二进制大对象页</li>
 </ul>
 </li>
-<li><p>而非Runtime Exception包括</p>
-<ul>
-<li>试图超越文件末尾激素读取数据</li>
-<li>试图打开一个不存在的文件</li>
-<li>试图根据给定的字符串查找Class，而这个类并不存在。</li>
-</ul>
+<li><p>在B+树中，每一层的页都是链表相连，如果它们的物理地址不是连续的，那查询的时候会有很多随机I&#x2F;O，很影响性能。为了解决这个问题，就会使用更大的数据结构区（extent）来作为存储单位，每个区的大小为1MB。</p>
 </li>
+<li><p>段：数据段，索引段，回滚段。</p>
+</li>
+</ul>
+<h2 id="InnoDB行记录格式"><a href="#InnoDB行记录格式" class="headerlink" title="InnoDB行记录格式"></a>InnoDB行记录格式</h2><p>InnoDB提供了4种行格式：Redundant、Compact、Dynamic和Compressed行格式。</p>
+<p>Redundant：是为了兼容之前的版本保留的。</p>
+<p>Compact：是MySQL5.1-5.7的默认版本</p>
+<p>Dynamic和Compressed：作为Compact的扩展版本，它们于compact的主要区别在溢出页的处理，其中Dynamic为MySQL5.7之后的默认版本。</p>
+<h3 id="Compact行格式"><a href="#Compact行格式" class="headerlink" title="Compact行格式"></a>Compact行格式</h3><p>​<img src="/../images/image-20230725171234-of9bp6s.png" alt="image">​</p>
+<p>其中变长字段和NULL值列表都是可要可不要的字段。变长字段主要是存放变长值的长度的（占用字节数），而NULL值列表是一串二进制字符，默认占一个字节，每一个位表示后面的值是否为NULL。着两个值都是倒序存放。</p>
+<blockquote>
+<p><strong>为什么倒序存放？</strong></p>
+<p>因为行的下一跳指针指向的是下一个行的中间位置。前面变长和NULL值泪飙相当于索引值，行的后面存储数据的真实值。假如前面的列表是倒序存储，那指向中间的指针的两边的索引和值就是一一对应的，可以用更少的变动获取它们。“<strong>使得位置靠前的记录的真实数据和数据对应的字段长度信息可以同时在一个 CPU Cache Line 中，这样就可以提高 CPU Cache 的命中率</strong>。”</p>
+</blockquote>
+<p><strong>头信息</strong></p>
+<ul>
+<li>delete_mask ：标识此条数据是否被删除。从这里可以知道，我们执行 detele 删除记录的时候，并不会真正的删除记录，只是将这个记录的 delete_mask 标记为 1。</li>
+<li>next_record：下一条记录的位置。从这里可以知道，记录与记录之间是通过链表组织的。在前面我也提到了，指向的是下一条记录的「记录头信息」和「真实数据」之间的位置，这样的好处是向左读就是记录头信息，向右读就是真实数据，比较方便。</li>
+<li>record_type：表示当前记录的类型，0表示普通记录，1表示B+树非叶子节点记录，2表示最小记录，3表示最大记录</li>
+</ul>
+<p><strong>真实数据</strong></p>
+<ul>
+<li>row_id：若建表没有指定主键或唯一约束列，那么InnoDB就会添加row_id。不是必须的，占用6个字节</li>
+<li>trx_id：由哪个事务生成的，必须的，6个字节。</li>
+<li>roll_pointer：记录上一个版本的指针，必须的，7个字节。</li>
 </ul>
 <blockquote>
-<p>如果出现RuntimeException那一定是你的问题，因为数据越界是可以通过提前检查发现的</p>
+<p>页的大小一般是16KB，也就是16384字节，而一个varchar(n)类型的列最多可以存储65532字节。这就可能造成页溢出，而Compact的处理方式是，在本页中存储一部分，然后再后面加上溢出页地址。Compressed 和 Dynamic是直接存储溢出页地址，溢出内容都存在溢出页中。</p>
 </blockquote>
-<pre><code>其中，派生于Error和RuntimeException类的所有异常成为非检查型异常（unchecked Exception），其它的异常成为检查型异常（checked Exception）。
-</code></pre>
-<h3 id="抛出检查型异常"><a href="#抛出检查型异常" class="headerlink" title="抛出检查型异常"></a>抛出检查型异常</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">FileInputStream</span><span class="params">(String name)</span> <span class="keyword">throws</span> FileNotFoundException</span><br></pre></td></tr></table></figure>
-
-<pre><code>在编写程序的时候，我们不需要像上面这样声明所有的方法可能抛出的异常。一般出现以下两种情况的时候，我们需要声明：
-</code></pre>
+<h2 id="InnoDB数据页结构"><a href="#InnoDB数据页结构" class="headerlink" title="InnoDB数据页结构"></a>InnoDB数据页结构</h2><p>​<img src="/../images/fabd6dadd61a0aa342d7107213955a72-20230725184822-h9ofgyw.webp" alt="fabd6dadd61a0aa342d7107213955a72">​</p>
 <ul>
-<li>调用了抛出检查型异常的方法IOException</li>
-<li>检测到一个错误，并且利用throw语句抛出一个检擦型异常</li>
+<li>在数据页的文件头有两个指针，指向前一个和后一个数据页。</li>
 </ul>
-<blockquote>
-<p><strong>为什么只抛出检查型异常呢？</strong>《Java核心技术卷》里由相关解释。首先，每一个抛出检查型异常（checked exception）的方法如果不加处理，都有可能会导致线程的中断（例如，FileNotFoundException）。再者，派生于Error类的错误类型，往往并不受我们的控制，所以没有必要声明。派生于Runtime Exception的异常则完全受我们控制，且可以通过提前检查来避免，所以也不需要声明。</p>
-</blockquote>
-<blockquote>
-<p>同时需要注意的是，如果在子类中覆盖了超类的一个方法，而子类不能声明比超类更通用的异常。即，若超类没有抛出任何检查型异常，子类也不能抛出任何检查型异常。</p>
-</blockquote>
-<p><em>总结，检查型异常必须抛出或者用try…catch包含，不然编译器一般会报错。</em></p>
-<h3 id="创建异常类"><a href="#创建异常类" class="headerlink" title="创建异常类"></a>创建异常类</h3><blockquote>
-<p>你的代码可能遇到任何标准异常类都无法描述清楚的问题。这时，就需要创建自己的异常类。</p>
-</blockquote>
-<p>只需要创建一个继承Exception或它的子类的类。</p>
-<h3 id="Finally"><a href="#Finally" class="headerlink" title="Finally"></a>Finally</h3><blockquote>
-<p>finally中包含return语句时，有可能会产生意想不到的结果。</p>
-</blockquote>
-<p>假设利用return语句从try语句块中退出，这时也声明了finally语句块，所以在执行try的return之前需要先执行finally，如果finally中也有一个return，那这个返回值会覆盖之前的return。</p>
-<h2 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h2><blockquote>
-<p>断言机制允许在测试期间向代码中插入一些检查，而在生产代码中会自动删除这些检查。</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java语言引入了关键字assert</span></span><br><span class="line"><span class="keyword">assert</span> condition;</span><br><span class="line"><span class="comment">// 或</span></span><br><span class="line"><span class="keyword">assert</span> condition : expression</span><br></pre></td></tr></table></figure>
-
-<p>这两个语句都会计算条件，如果结果为false，则抛出一个<code>AssertionError</code>​异常</p>
-<p>。。。不理解</p>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
-<li><input checked="" disabled="" type="checkbox"> 为什么要声明检查型异常</li>
-<li><input checked="" disabled="" type="checkbox"> 所有异常都有哪些？</li>
-<li><input checked="" disabled="" type="checkbox"> 实现一下超类和子类的声明异常关系</li>
+<p>​<img src="/../images/557d17e05ce90f18591c2305871af665-20230725184945-fggghsm.webp" alt="557d17e05ce90f18591c2305871af665">​</p>
+<ul>
+<li>而用户的信息就存在User Records里面，并按照“主键”的顺序来组成链表。</li>
+<li>为了加快链表的查询效率，数据页通过页目录（page directory）记录行的索引，这样innodb可以通过二分查找去快速定位行信息。​</li>
 </ul>
+<p><img src="/../images/261011d237bec993821aa198b97ae8ce-20230725185152-srkizd3.webp" alt="261011d237bec993821aa198b97ae8ce">​</p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>《Java核心技术卷I》第七章</li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_34514378/article/details/114766553">检查型异常有哪些 CSDN</a></li>
+<li><a target="_blank" rel="noopener" href="https://xiaolincoding.com/mysql/index/page.html#%E6%80%BB%E7%BB%93">小林Coding</a></li>
+<li>《MySQL技术内幕 InnoDB存储引擎》</li>
+</ul>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
+<li><p><input disabled="" type="checkbox"> 
+表中的null的真实值部分，存储什么？全0吗？</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+<strong>共享表空间</strong>是什么？</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+为什么要设置段？</p>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+溢出页数据结构是什么？</p>
+<ul>
+<li><input disabled="" type="checkbox"> 可以无限存吗？</li>
+</ul>
+</li>
 </ul>
 </section>
     <!-- Tags START -->
@@ -277,8 +294,8 @@
       <div class="tags">
         <span>Tags:</span>
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#InnoDB" >
+    <span class="tag-code">InnoDB</span>
   </a>
 
       </div>
@@ -289,10 +306,17 @@
   <div class="nav-container">
     <!-- reverse left and right to put prev and next in a more logic postition -->
     
-    
-      <a class="nav-right" href="/2023/04/14/PowerMock%E7%9A%84%E4%BD%BF%E7%94%A8/">
+      <a class="nav-left" href="/2023/08/08/InnoDB-Checkpoint%E6%8A%80%E6%9C%AF/">
+        <span class="nav-arrow">← </span>
         
-          PowerMock的使用
+          InnoDB-Checkpoint技术
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2023/08/08/MySQL-Select%E8%AF%AD%E5%8F%A5%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B/">
+        
+          MySQL-Select语句执行过程
         
         <span class="nav-arrow"> →</span>
       </a>
@@ -347,7 +371,7 @@
   <div class="toc-main">
     <strong class="toc-title">Catalog</strong>
     
-      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Java%E7%9A%84%E5%BC%82%E5%B8%B8%E5%92%8C%E6%96%AD%E8%A8%80"><span class="toc-nav-text">Java的异常和断言</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%BC%82%E5%B8%B8"><span class="toc-nav-text">异常</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%8A%9B%E5%87%BA%E6%A3%80%E6%9F%A5%E5%9E%8B%E5%BC%82%E5%B8%B8"><span class="toc-nav-text">抛出检查型异常</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BC%82%E5%B8%B8%E7%B1%BB"><span class="toc-nav-text">创建异常类</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Finally"><span class="toc-nav-text">Finally</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%96%AD%E8%A8%80"><span class="toc-nav-text">断言</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li></ol></li></ol>
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#InnoDB-%E4%BA%8C-%E8%A1%A8%E7%BB%93%E6%9E%84"><span class="toc-nav-text">InnoDB(二) - 表结构</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#InnoDB%E9%80%BB%E8%BE%91%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="toc-nav-text">InnoDB逻辑存储结构</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#InnoDB%E8%A1%8C%E8%AE%B0%E5%BD%95%E6%A0%BC%E5%BC%8F"><span class="toc-nav-text">InnoDB行记录格式</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Compact%E8%A1%8C%E6%A0%BC%E5%BC%8F"><span class="toc-nav-text">Compact行格式</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#InnoDB%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84"><span class="toc-nav-text">InnoDB数据页结构</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol></li></ol>
     
   </div>
 </aside>
@@ -357,7 +381,7 @@
 
 <script>
   (function () {
-    var url = 'http://example.com/2023/04/10/Java的异常和断言/';
+    var url = 'http://example.com/2023/08/08/InnoDB-二-表结构/';
     var banner = ''
     if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
       $('#article-banner').css({

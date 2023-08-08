@@ -10,7 +10,7 @@
   
   <title>
     
-      Java的异常和断言 | BJXLS&#39; BLOG
+      InnoDB-Checkpoint技术 | BJXLS&#39; BLOG
     
   </title>
   <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
@@ -192,8 +192,8 @@
 </header>
 
     <div id="article-banner">
-  <h2>Java的异常和断言</h2>
-  <p class="post-date">2023-04-10</p>
+  <h2>InnoDB-Checkpoint技术</h2>
+  <p class="post-date">2023-08-08</p>
   <div class="arrow-down">
     <a href="javascript:;"></a>
   </div>
@@ -201,75 +201,78 @@
 <main class="app-body flex-box">
   <!-- Article START -->
   <article class="post-article">
-    <section class="markdown-content"><h1 id="Java的异常和断言"><a href="#Java的异常和断言" class="headerlink" title="Java的异常和断言"></a>Java的异常和断言</h1><ul>
-<li>异常</li>
-<li>断言</li>
-</ul>
-<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><blockquote>
-<p>在Java程序中，所有的异常都是由Throwable继承而来的，然后又分为Error和Exception。</p>
+    <section class="markdown-content"><h1 id="InnoDB-Checkpoint技术"><a href="#InnoDB-Checkpoint技术" class="headerlink" title="InnoDB-Checkpoint技术"></a>InnoDB-Checkpoint技术</h1><blockquote>
+<p>为了协调CPU和磁盘速度的鸿沟，InnoDB设立了缓冲池，页的操作也都是先在缓冲池中实现。这种设计可能导致，缓冲区存在脏页（比磁盘更新的页）。而数据库需要将这些新的页同步到磁盘中去，但是并不能每次修改缓存中的页，就进行一次同步，这样数据库性能会非常差。同时，缓冲区的信息并没有持久化，一旦宕机，缓存中的数据就会丢失（解决这个问题的主流时事务提交后，先写redo log，再修改页）。</p>
 </blockquote>
-<p>​​<img src="/../images/image-20230418133209-olgbgy8.png" alt="image">​​</p>
+<p>因此，Checkpoint（检查点）技术的出现主要为了解决这个问题：每次刷新多少页到磁盘，每次从哪里取到脏页，以及什么时间触发checkpoint？</p>
+<p>当下主流的共识是认为Checkpoint技术可以解决三个问题：</p>
 <ul>
-<li><p>其中的Error类描述的是Java运行时系统内部错误和资源耗尽错误。我们的应用程序不应该抛出这种异常，而且一旦发生，我们一般无能为力。</p>
-</li>
-<li><p>Exception由分为两个大类，一个是Runtime Exception，一个是非Runtime Exception。其中Runtime Exception是代表由编程错误导致的异常，包括</p>
-<ul>
-<li>错误的强制类型转换</li>
-<li>数组访问越界</li>
-<li>访问null指针</li>
-</ul>
-</li>
-<li><p>而非Runtime Exception包括</p>
-<ul>
-<li>试图超越文件末尾激素读取数据</li>
-<li>试图打开一个不存在的文件</li>
-<li>试图根据给定的字符串查找Class，而这个类并不存在。</li>
-</ul>
-</li>
+<li>缩短数据库恢复时间（即不用将所有的操作存入redo log，而一次性全部恢复，只需要恢复checkpoint之后的redo log内容即可，这样以来，redo log也可以实现循环使用）</li>
+<li>缓冲池不够用时，将脏页刷新到磁盘</li>
+<li>redo log不可用时，刷新脏页（个人感觉这一条总结的很鸡肋，书中讲的redo log不可用指的时redo log循环使用导致之前部分不可用，那么就可以使用checkpoint进行部分的刷新，因为checkpoint之前已经刷新完成）</li>
 </ul>
 <blockquote>
-<p>如果出现RuntimeException那一定是你的问题，因为数据越界是可以通过提前检查发现的</p>
+<p>总的来说，我认为Checkpoint可以看作是一个标志。这个标志对应着数据库硬盘中最新的LSN，而redo log中的LSN应该是大于或等于checkpoint的，其实checkpoint就相当于一个变量，存储的是硬盘存储的文件版本位置。有了这个变量之后，innoDB的缓存刷新策略就会更加灵活。Redo log和write ahead log策略，保证了缓存数据在宕机后可以恢复；而checkpoint机制的出现是锦上添花，使得redo log的操作更加灵活。</p>
 </blockquote>
-<pre><code>其中，派生于Error和RuntimeException类的所有异常成为非检查型异常（unchecked Exception），其它的异常成为检查型异常（checked Exception）。
-</code></pre>
-<h3 id="抛出检查型异常"><a href="#抛出检查型异常" class="headerlink" title="抛出检查型异常"></a>抛出检查型异常</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">FileInputStream</span><span class="params">(String name)</span> <span class="keyword">throws</span> FileNotFoundException</span><br></pre></td></tr></table></figure>
-
-<pre><code>在编写程序的时候，我们不需要像上面这样声明所有的方法可能抛出的异常。一般出现以下两种情况的时候，我们需要声明：
-</code></pre>
+<p>使用checkpoint技术之后，当数据库发生宕机时，数据库不需要重做所有日志，只需要对checkpoint之后的日志进行恢复。</p>
+<p>InnoDB存储引擎内部，有两种Checkpoint：</p>
 <ul>
-<li>调用了抛出检查型异常的方法IOException</li>
-<li>检测到一个错误，并且利用throw语句抛出一个检擦型异常</li>
+<li>Sharp Checkpoint</li>
+<li>Fuzzy Checkpoint</li>
 </ul>
-<blockquote>
-<p><strong>为什么只抛出检查型异常呢？</strong>《Java核心技术卷》里由相关解释。首先，每一个抛出检查型异常（checked exception）的方法如果不加处理，都有可能会导致线程的中断（例如，FileNotFoundException）。再者，派生于Error类的错误类型，往往并不受我们的控制，所以没有必要声明。派生于Runtime Exception的异常则完全受我们控制，且可以通过提前检查来避免，所以也不需要声明。</p>
-</blockquote>
-<blockquote>
-<p>同时需要注意的是，如果在子类中覆盖了超类的一个方法，而子类不能声明比超类更通用的异常。即，若超类没有抛出任何检查型异常，子类也不能抛出任何检查型异常。</p>
-</blockquote>
-<p><em>总结，检查型异常必须抛出或者用try…catch包含，不然编译器一般会报错。</em></p>
-<h3 id="创建异常类"><a href="#创建异常类" class="headerlink" title="创建异常类"></a>创建异常类</h3><blockquote>
-<p>你的代码可能遇到任何标准异常类都无法描述清楚的问题。这时，就需要创建自己的异常类。</p>
-</blockquote>
-<p>只需要创建一个继承Exception或它的子类的类。</p>
-<h3 id="Finally"><a href="#Finally" class="headerlink" title="Finally"></a>Finally</h3><blockquote>
-<p>finally中包含return语句时，有可能会产生意想不到的结果。</p>
-</blockquote>
-<p>假设利用return语句从try语句块中退出，这时也声明了finally语句块，所以在执行try的return之前需要先执行finally，如果finally中也有一个return，那这个返回值会覆盖之前的return。</p>
-<h2 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h2><blockquote>
-<p>断言机制允许在测试期间向代码中插入一些检查，而在生产代码中会自动删除这些检查。</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java语言引入了关键字assert</span></span><br><span class="line"><span class="keyword">assert</span> condition;</span><br><span class="line"><span class="comment">// 或</span></span><br><span class="line"><span class="keyword">assert</span> condition : expression</span><br></pre></td></tr></table></figure>
-
-<p>这两个语句都会计算条件，如果结果为false，则抛出一个<code>AssertionError</code>​异常</p>
-<p>。。。不理解</p>
+<p><strong>Sharp Checkpoint</strong>发生在数据库关闭时要将所有的脏页都刷新回磁盘。</p>
+<h2 id="Fuzzy-Checkpoint"><a href="#Fuzzy-Checkpoint" class="headerlink" title="Fuzzy Checkpoint"></a>Fuzzy Checkpoint</h2><p>在数据库运行时使用，Fuzzy Checkpoint，即一次只刷新一部分脏页进入磁盘。</p>
+<p>根据《MySQL技术内幕  InnoDB存储引擎  第2版》的划分，InnoDB存储引擎可能发生如下几种Fuzzy Checkpoint：</p>
+<ul>
+<li>Master Thread Checkpoint</li>
+<li>FLUSH_LRU_LIST Checkpoint</li>
+<li>Async&#x2F;Sync Flush Checkpoint</li>
+<li>Dirty Page too much Checkpoint</li>
+</ul>
+<h3 id="Master-Thread-Checkpoint"><a href="#Master-Thread-Checkpoint" class="headerlink" title="Master Thread Checkpoint"></a>Master Thread Checkpoint</h3><p>Master Thread中发生的Checkpoint，差不多以每秒或每十秒的速度从缓冲池的脏页列表中刷新一定比例的页返回磁盘。这个过程是异步的，即此时InnoDB存储引擎可以进行其它的错做，用户查询线程不会阻塞。</p>
+<h3 id="FLUSH-LRU-LIST-Checkpoint"><a href="#FLUSH-LRU-LIST-Checkpoint" class="headerlink" title="FLUSH_LRU_LIST Checkpoint"></a>FLUSH_LRU_LIST Checkpoint</h3><p>此情况是InnoDB存储引擎需要保证LRU列表需要有差不多100个空闲页可供使用。如果没有100个空闲页，InnoDB就会将LRU列表尾端的页移除，如果其中有脏页，那么就需要进行Checkpoint。</p>
+<h3 id="Async-x2F-Sync-Flush-Checkpoint"><a href="#Async-x2F-Sync-Flush-Checkpoint" class="headerlink" title="Async&#x2F;Sync Flush Checkpoint"></a>Async&#x2F;Sync Flush Checkpoint</h3><p>这里会定义三个量</p>
+<p>​<img src="/../images/image-20230724184119-44hi0si.png" alt="image">​</p>
+<p>这里用语言解释更好理解，checkpoint_age也就是缓存中还没有写入硬盘的版本数量；async_water_mark也就是redo log的75%的大小；sync_water_mark也就是redo log的90%大小。</p>
+<p>两种写入机制的触发也就是当未写入缓存的版本数量大于75%的redo log数量会进行异步的写入；一旦大于90%就会进行同步的写入。</p>
+<h3 id="Dirty-Page-too-much-Checkpoint"><a href="#Dirty-Page-too-much-Checkpoint" class="headerlink" title="Dirty Page too much Checkpoint"></a>Dirty Page too much Checkpoint</h3><p>如果脏页数量太多，InnoDB会强制进行Checkpoint。其目的还是为了保证缓冲池中有足够的页。可以用innodb_max_dirty_pages_pct控制触发阈值若为75，则当缓冲池中脏页的数量占据75%时，进行Checkpoint。（这不是和之前的同步异步checkpoint冲突吗）</p>
 <h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ul>
-<li><input checked="" disabled="" type="checkbox"> 为什么要声明检查型异常</li>
-<li><input checked="" disabled="" type="checkbox"> 所有异常都有哪些？</li>
-<li><input checked="" disabled="" type="checkbox"> 实现一下超类和子类的声明异常关系</li>
+<li><p><input disabled="" type="checkbox"> 
+需要做一下innodb的日志（redo）的笔记</p>
+<ul>
+<li><input disabled="" type="checkbox"> redo log存储什么信息？</li>
+<li><input disabled="" type="checkbox"> 它的数据结构是什么样子的？</li>
 </ul>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>《Java核心技术卷I》第七章</li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_34514378/article/details/114766553">检查型异常有哪些 CSDN</a></li>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+什么时候redo日志文件不可用？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 这里的不可用是指，redo log循环使用，不能进行全量恢复</li>
+</ul>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+checkPoint是一个什么动作？</p>
+<ul>
+<li><p><input checked="" disabled="" type="checkbox"> 
+checkpoint有点像一个机制，依托于LSN实现（版本号）。记录有分歧的LSN，然后根据这个进行恢复</p>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+那么redo log的LSN更大还是checkpoint的LSN更大？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 按照逻辑来说redo log的LSN应该时比checkpoint更大，checkpoint对应的应该是当前磁盘中最新的LSN，而redo log因为在</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><input disabled="" type="checkbox"> 
+LRU需要差不多100个空闲页，为什么是差不多？</p>
+</li>
+<li><p><input checked="" disabled="" type="checkbox"> 
+checkpoint会堵塞用户查询进程吗？</p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> checkpoint根本不是一种动作，而是一种记录形式，所以checkpoint本身不会堵塞进程</li>
+</ul>
+</li>
 </ul>
 </section>
     <!-- Tags START -->
@@ -277,8 +280,8 @@
       <div class="tags">
         <span>Tags:</span>
         
-  <a href="/tags#Java" >
-    <span class="tag-code">Java</span>
+  <a href="/tags#InnoDB" >
+    <span class="tag-code">InnoDB</span>
   </a>
 
       </div>
@@ -289,10 +292,17 @@
   <div class="nav-container">
     <!-- reverse left and right to put prev and next in a more logic postition -->
     
-    
-      <a class="nav-right" href="/2023/04/14/PowerMock%E7%9A%84%E4%BD%BF%E7%94%A8/">
+      <a class="nav-left" href="/2023/07/02/Java%E7%9A%84Class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/">
+        <span class="nav-arrow">← </span>
         
-          PowerMock的使用
+          Java的Class文件结构
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2023/08/08/InnoDB-%E4%BA%8C-%E8%A1%A8%E7%BB%93%E6%9E%84/">
+        
+          InnoDB(二) - 表结构
         
         <span class="nav-arrow"> →</span>
       </a>
@@ -347,7 +357,7 @@
   <div class="toc-main">
     <strong class="toc-title">Catalog</strong>
     
-      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#Java%E7%9A%84%E5%BC%82%E5%B8%B8%E5%92%8C%E6%96%AD%E8%A8%80"><span class="toc-nav-text">Java的异常和断言</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%BC%82%E5%B8%B8"><span class="toc-nav-text">异常</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E6%8A%9B%E5%87%BA%E6%A3%80%E6%9F%A5%E5%9E%8B%E5%BC%82%E5%B8%B8"><span class="toc-nav-text">抛出检查型异常</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BC%82%E5%B8%B8%E7%B1%BB"><span class="toc-nav-text">创建异常类</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Finally"><span class="toc-nav-text">Finally</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E6%96%AD%E8%A8%80"><span class="toc-nav-text">断言</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%8F%82%E8%80%83"><span class="toc-nav-text">参考</span></a></li></ol></li></ol>
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-1"><a class="toc-nav-link" href="#InnoDB-Checkpoint%E6%8A%80%E6%9C%AF"><span class="toc-nav-text">InnoDB-Checkpoint技术</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#Fuzzy-Checkpoint"><span class="toc-nav-text">Fuzzy Checkpoint</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Master-Thread-Checkpoint"><span class="toc-nav-text">Master Thread Checkpoint</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#FLUSH-LRU-LIST-Checkpoint"><span class="toc-nav-text">FLUSH_LRU_LIST Checkpoint</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Async-x2F-Sync-Flush-Checkpoint"><span class="toc-nav-text">Async&#x2F;Sync Flush Checkpoint</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#Dirty-Page-too-much-Checkpoint"><span class="toc-nav-text">Dirty Page too much Checkpoint</span></a></li></ol></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-nav-text">问题</span></a></li></ol></li></ol>
     
   </div>
 </aside>
@@ -357,7 +367,7 @@
 
 <script>
   (function () {
-    var url = 'http://example.com/2023/04/10/Java的异常和断言/';
+    var url = 'http://example.com/2023/08/08/InnoDB-Checkpoint技术/';
     var banner = ''
     if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
       $('#article-banner').css({
