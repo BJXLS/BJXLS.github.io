@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      Spring-framework-5.3.8源码编译 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>Spring-framework-5.3.8源码编译</h2>
+  <p class="post-date">2023-10-03</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><blockquote>
+<p>Spring-framework的源码编译有很多坑，我尝试了一天多，才编译成功，在此记录一下编译成功的步骤。</p>
+</blockquote>
+<h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>我们需要先选定Spring-framework的版本，我这里选择了5.3.8（不同的版本需要的依赖不同）。之后就可以去github进行源码的下载，下载的方式有很多种，这里我选择了下载zip文件。通过下面的网址，选择适合的版本即可下载。<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-framework/releases">https://github.com/spring-projects/spring-framework/releases</a><br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695470256115-5584d437-9aba-487c-b932-2392fb6327f7.png#averageHue=%23fefefe&clientId=uf2d02753-5784-4&from=paste&height=270&id=u9a29bf87&originHeight=405&originWidth=1408&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=38219&status=done&style=none&taskId=u0d69232c-d215-44a5-b245-4b3a3ea4d27&title=&width=938.6666666666666" alt="image.png"><br>下载完成解压后，我们进入<code>.\gradle\wrapper\gradle-wrapper.properties</code><br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695470428385-ad8b7db1-9994-46d3-a931-4e22dbbdb905.png#averageHue=%2320201f&clientId=uf2d02753-5784-4&from=paste&height=97&id=u3f6d9a9e&originHeight=146&originWidth=1017&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=30104&status=done&style=none&taskId=u1e86ba32-15c7-4508-900a-73a1eb681bc&title=&width=678" alt="image.png"><br>可以在其中发现gradle所需要的版本，我们可以直接复制这个链接，将其下载到本地。这样每次编译就不需要重新下载gradle了，当然下载之后，我们也需要重新配置一下<code>gradle-wrapper.properties</code>文件，如下。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695470523037-f5acdecc-1fae-44ee-a589-95a0ff55cf12.png#averageHue=%2320201f&clientId=uf2d02753-5784-4&from=paste&height=104&id=u60776c35&originHeight=156&originWidth=1018&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=28697&status=done&style=none&taskId=u6db50626-58c8-41be-b829-9f91e3b6618&title=&width=678.6666666666666" alt="image.png"><br>当然，每个版本的Spring-framework所需的jdk版本都不一样，也需要根据不同版本进行安装，这里5.3.8所需要jdk8以及以上的版本，本机安装的是jdk11。</p>
+<h2 id="配置gradle"><a href="#配置gradle" class="headerlink" title="配置gradle"></a>配置gradle</h2><p>之后，我们需要给安装的gradle配置国内源去提升下载速度，不然网速会非常非常慢。（在Spring-framework源码编译过程中，网络会是一个很大的问题）<br>我们需要在<code>settings.gradle</code>中添加国内源，如下。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695470860614-2e98dec1-24ba-491b-bfd5-12c27803424d.png#averageHue=%231e1e1e&clientId=uf2d02753-5784-4&from=paste&height=155&id=u346a7f54&originHeight=232&originWidth=1486&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=35585&status=done&style=none&taskId=u2a76f028-ca2d-4223-b74f-046b27aac50&title=&width=990.6666666666666" alt="image.png"><br>接着，在<code>build.gradle</code>中添加配置，如下。<br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695470931587-2bebc5cd-672c-4081-9999-a3acfba6bf61.png#averageHue=%2322221f&clientId=uf2d02753-5784-4&from=paste&height=203&id=uc4f073f9&originHeight=305&originWidth=1386&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=50712&status=done&style=none&taskId=u09c6db9c-21ab-4eb1-bea9-9e243712637&title=&width=924" alt="image.png"></p>
+<h2 id="预编译"><a href="#预编译" class="headerlink" title="预编译"></a>预编译</h2><p>根据Spring-framework官网的要求，在导入IDEA之前，需要先预编译一下（也可能不需要）。<br>首先在，Spring-framework的工作目录下输入</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gradlew :spring<span class="literal">-oxm</span>:compileTestJava</span><br><span class="line"><span class="comment"># 和</span></span><br><span class="line">gradlew :spring<span class="literal">-core</span>:compileTestJava</span><br></pre></td></tr></table></figure>
+<p><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695471041602-8bcd4b3d-89fb-4129-99d6-a27fd3a5039b.png#averageHue=%231a1a1a&clientId=uf2d02753-5784-4&from=paste&height=127&id=u87077280&originHeight=190&originWidth=1397&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=23907&status=done&style=none&taskId=uac89bde4-1ba3-44b1-9f51-62b175d397f&title=&width=931.3333333333334" alt="image.png"><br>显示<code>BUILD SUCCESSFUL</code>就说明预编译成功了，可以进行IDEA的导入了。</p>
+<h2 id="IDEA导入"><a href="#IDEA导入" class="headerlink" title="IDEA导入"></a>IDEA导入</h2><p><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695471109737-25492c26-6653-46e0-b9c5-b0e24dcc85de.png#averageHue=%233f4b59&clientId=uf2d02753-5784-4&from=paste&height=120&id=u0f959917&originHeight=180&originWidth=1001&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=45940&status=done&style=none&taskId=uf8eb4598-959f-4b10-9d79-45454f54fab&title=&width=667.3333333333334" alt="image.png"><br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695471137108-b11680f2-256d-44e0-af2e-533d04a84edc.png#averageHue=%233c4045&clientId=uf2d02753-5784-4&from=paste&height=607&id=u6e33ea57&originHeight=910&originWidth=1114&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=51628&status=done&style=none&taskId=ueed6249b-2f96-46ab-a4dd-0b9fa940b32&title=&width=742.6666666666666" alt="image.png"><br>选择gradle方式导入<br><img src="https://cdn.nlark.com/yuque/0/2023/png/34850319/1695471186123-a8a0f588-d770-47c6-bfb2-6822f0ece966.png#averageHue=%232e2d2d&clientId=uf2d02753-5784-4&from=paste&height=285&id=ub3c150e1&originHeight=428&originWidth=1194&originalType=binary&ratio=1.5&rotation=0&showTitle=false&size=59047&status=done&style=none&taskId=u2f94a2b0-5b6c-48aa-baf5-1bfb012d9a0&title=&width=796" alt="image.png"><br>出现，如上输出，就说明编译成功了。</p>
+<blockquote>
+<p>编译Spring-framework用了很久，出了很多问题，我遇到的大部分都是和网络相关，如果不行的话，可以通过换网或者搭梯子的方式再试一试。</p>
+</blockquote>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#Spring" >
+    <span class="tag-code">Spring</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/10/03/%E4%B9%90%E8%A7%82%E9%94%81%EF%BC%8C%E6%82%B2%E8%A7%82%E9%94%81%EF%BC%8C%E5%85%B1%E4%BA%AB%E9%94%81%EF%BC%8C%E6%8E%92%E4%BB%96%E9%94%81/">
+        <span class="nav-arrow">← </span>
+        
+          乐观锁，悲观锁，共享锁，排他锁
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2023/10/03/Spring-framework-5-3-8%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90%EF%BC%88%E4%B8%80%EF%BC%89BeanDefinition%E7%9A%84%E5%8A%A0%E8%BD%BD/">
+        
+          Spring-framework-5.3.8源码解析（一）BeanDefinition的加载
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-nav-text">准备工作</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%85%8D%E7%BD%AEgradle"><span class="toc-nav-text">配置gradle</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#%E9%A2%84%E7%BC%96%E8%AF%91"><span class="toc-nav-text">预编译</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#IDEA%E5%AF%BC%E5%85%A5"><span class="toc-nav-text">IDEA导入</span></a></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/10/03/Spring-framework-5-3-8源码编译/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>

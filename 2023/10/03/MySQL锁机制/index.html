@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+  <meta name="description" content="BJXLS&#39;s blog">
+  <meta name="keyword" content="JAVA">
+  
+    <link rel="shortcut icon" href="/css/images/logo.png">
+  
+  <title>
+    
+      MySQL锁机制 | BJXLS&#39; BLOG
+    
+  </title>
+  <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css" rel="stylesheet">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/geopattern/1.2.3/js/geopattern.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+  
+    
+<script src="/js/qrious.js"></script>
+
+  
+  
+  
+  
+    <!-- MathJax support START -->
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <!-- MathJax support END -->
+  
+
+
+  
+  
+    
+<script src="/js/local-search.js"></script>
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+<div class="wechat-share">
+  <img src="/css/images/logo.png" />
+</div>
+  <body>
+    <header class="header fixed-header">
+  <div class="header-container">
+    <a class="home-link" href="/">
+      <div class="logo"></div>
+      <span>BJXLS' BLOG</span>
+    </a>
+    <ul class="right-list">
+      
+        <li class="list-item">
+          
+            <a href="/" class="item-link">Home</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/series/" class="item-link">Series</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/tags/" class="item-link">Tags</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/archives/" class="item-link">Archives</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/project/" class="item-link">Projects</a>
+          
+        </li>
+      
+        <li class="list-item">
+          
+            <a href="/about/" class="item-link">About</a>
+          
+        </li>
+      
+      
+        <li class="menu-item menu-item-search right-list">
+    <a role="button" class="popup-trigger">
+        <i class="fa fa-search fa-fw"></i>
+    </a>
+</li>
+      
+    </ul>
+    <div class="menu">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </div>
+    <div class="menu-mask">
+      <ul class="menu-list">
+        
+          <li class="menu-item">
+            
+              <a href="/" class="menu-link">Home</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/series/" class="menu-link">Series</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/tags/" class="menu-link">Tags</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/archives/" class="menu-link">Archives</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/project/" class="menu-link">Projects</a>
+            
+          </li>
+        
+          <li class="menu-item">
+            
+              <a href="/about/" class="menu-link">About</a>
+            
+          </li>
+        
+      </ul>
+    </div>
+    
+      <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+            <span class="search-icon">
+                <i class="fa fa-search"></i>
+            </span>
+            <div class="search-input-container">
+                <input autocomplete="off" autocapitalize="off"
+                    placeholder="Please enter your keyword(s) to search." spellcheck="false"
+                    type="search" class="search-input">
+            </div>
+            <span class="popup-btn-close">
+                <i class="fa fa-times-circle"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+    
+  </div>
+</header>
+
+    <div id="article-banner">
+  <h2>MySQL锁机制</h2>
+  <p class="post-date">2023-10-03</p>
+  <div class="arrow-down">
+    <a href="javascript:;"></a>
+  </div>
+</div>
+<main class="app-body flex-box">
+  <!-- Article START -->
+  <article class="post-article">
+    <section class="markdown-content"><h2 id="MySQL锁的种类"><a href="#MySQL锁的种类" class="headerlink" title="MySQL锁的种类"></a>MySQL锁的种类</h2><blockquote>
+<p>MySQL的锁主要可以分为三个层级</p>
+</blockquote>
+<ol>
+<li>全局锁<ol>
+<li><code>flush tables with read lock （使得整个数据库变为只读库，从而堵塞对于表数据和结构的修改操作）</code></li>
+</ol>
+</li>
+<li>表级锁<ol>
+<li>表锁<ol>
+<li>可以使用<code>lock tables t_test read</code>或者<code>lock tables t_test write 的方式来对表进行共享或独占锁的添加，需要注意的是，这种加锁方式也会影响本线程的操作。 </code></li>
+</ol>
+</li>
+<li>元数据锁（MDL）<ol>
+<li>我们是不需要显示的添加元数据锁的，当我们对数据库进行操作的时候，会自动给数据库添加MDL<ol>
+<li><strong>当我们对数据库数据进行CRUD的时候，添加的是MDL读锁。</strong></li>
+<li><strong>当我们对表结构进行修改的时候，添加的是MDL写锁。</strong></li>
+<li>也就是当我们在执行select的时候，其它线程要是想要修改表结构，就会被堵塞。</li>
+<li>在事务开始时创建，在事务结束时释放</li>
+<li>在对表结构进行修改的时候，要注意长事务情况，因为MDL写锁会优先级比MDL读锁更高，一旦堵塞，就会堵塞之后所有的锁，造成数据库正常功能的堵塞。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>意向锁<ol>
+<li>在使用InnoDB对某条记录添加“共享锁”之前，会先对表加上“意向共享锁”</li>
+<li>在对某条记录添加“独占锁”之前，会先对表加上“意向独占锁”</li>
+<li>意向锁是一种判断锁，它只会和表锁发生冲突，使用目的，主要是快速判断当前表里是否有记录被加锁</li>
+</ol>
+</li>
+<li>AUTO-INC锁<ol>
+<li>在数据库中主键的自增，就是通过AUTO-INC锁实现的。</li>
+<li>它不是事务结束之后才释放，而是一旦当前值插入结束，就会释放锁。</li>
+<li>在MySQL5.1.22开始，提供更轻量级的锁，当自增主键完成写入后就会释放锁</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>行级锁<ol>
+<li>Record Lock（记录锁）<ol>
+<li>记录锁可以锁住一条记录，并且分为S和X两种锁</li>
+</ol>
+</li>
+<li>Gap Lock（间隙锁）<ol>
+<li>间隙锁就是锁住了一段记录，是一个开区间</li>
+<li>并且间隙锁并不互斥，主要是为了防止幻读</li>
+</ol>
+</li>
+<li>Next-key Lock（以上两个的组合锁）<ol>
+<li>以上两种锁的组合，变成一个半开半闭的锁</li>
+</ol>
+</li>
+<li>插入意向锁<ol>
+<li>当一个事务想要去插入某个数据，但是这个数据被加了间隙锁，那么它就会在这个点去加入一个插入意向锁，代表当前点有事务在等待插入</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<h2 id="MySQL加锁流程"><a href="#MySQL加锁流程" class="headerlink" title="MySQL加锁流程"></a>MySQL加锁流程</h2><blockquote>
+<p>加锁的对象是<strong>索引</strong>，加锁的基本单位是 <strong>next-key lock</strong>。</p>
+</blockquote>
+<p>这里先主要讨论，MySQL行级锁的添加流程和规则</p>
+<h3 id="什么语句会加锁？"><a href="#什么语句会加锁？" class="headerlink" title="什么语句会加锁？"></a>什么语句会加锁？</h3><p>首先，普通的“查询语句”因为使用的是MVCC机制，是不会加锁的。<br>如果想要给“查询语句”加锁，可以使用当前读或者显示加锁的形式：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># 当前读</span><br><span class="line"><span class="keyword">select</span> ... <span class="keyword">from</span> t_test <span class="keyword">for</span> <span class="keyword">update</span>;</span><br><span class="line"># 显示加锁</span><br><span class="line"><span class="keyword">select</span> ... <span class="keyword">from</span> t_test lock <span class="keyword">in</span> share mode;</span><br></pre></td></tr></table></figure>
+<p>同时update和delet语句也都会对数据进行加锁，并且是独占锁的形式。</p>
+<h3 id="唯一索引等值查询"><a href="#唯一索引等值查询" class="headerlink" title="唯一索引等值查询"></a>唯一索引等值查询</h3><ul>
+<li>当查询的数据存在，那么next-key lock就会退化成记录锁</li>
+<li>当查询的数据不存在，那么next-key lock就会退化成间隙锁</li>
+</ul>
+<h3 id="唯一索引的范围查询"><a href="#唯一索引的范围查询" class="headerlink" title="唯一索引的范围查询"></a>唯一索引的范围查询</h3><p>。。。</p>
+<h3 id="非唯一索引等值查询"><a href="#非唯一索引等值查询" class="headerlink" title="非唯一索引等值查询"></a>非唯一索引等值查询</h3><p>。。。</p>
+<blockquote>
+<p>在线上在执行 update、delete、select … for update 等具有加锁性质的语句，要检查语句是否走了索引，<strong>如果是全表扫描的话，会对每一个索引加 next-key 锁，相当于对全表进行加锁</strong></p>
+</blockquote>
+</section>
+    <!-- Tags START -->
+    
+      <div class="tags">
+        <span>Tags:</span>
+        
+  <a href="/tags#MySQL" >
+    <span class="tag-code">MySQL</span>
+  </a>
+
+      </div>
+    
+    <!-- Tags END -->
+    <!-- NAV START -->
+    
+  <div class="nav-container">
+    <!-- reverse left and right to put prev and next in a more logic postition -->
+    
+      <a class="nav-left" href="/2023/09/04/HashMap%E8%AF%A6%E8%A7%A3%EF%BC%88%E6%BA%90%E7%A0%81%EF%BC%89/">
+        <span class="nav-arrow">← </span>
+        
+          HashMap详解（源码）
+        
+      </a>
+    
+    
+      <a class="nav-right" href="/2023/10/03/%E4%B9%90%E8%A7%82%E9%94%81%EF%BC%8C%E6%82%B2%E8%A7%82%E9%94%81%EF%BC%8C%E5%85%B1%E4%BA%AB%E9%94%81%EF%BC%8C%E6%8E%92%E4%BB%96%E9%94%81/">
+        
+          乐观锁，悲观锁，共享锁，排他锁
+        
+        <span class="nav-arrow"> →</span>
+      </a>
+    
+  </div>
+
+    <!-- NAV END -->
+    <!-- 打赏 START -->
+    
+      <div class="money-like">
+        <div class="reward-btn">
+          赏
+          <span class="money-code">
+            <span class="alipay-code">
+              <div class="code-image"></div>
+              <b>使用支付宝打赏</b>
+            </span>
+            <span class="wechat-code">
+              <div class="code-image"></div>
+              <b>使用微信打赏</b>
+            </span>
+          </span>
+        </div>
+        <p class="notice">若你觉得我的文章对你有帮助，欢迎点击上方按钮对我打赏</p>
+      </div>
+    
+    <!-- 打赏 END -->
+    <!-- 二维码 START -->
+    
+      <div class="qrcode">
+        <canvas id="share-qrcode"></canvas>
+        <p class="notice">扫描二维码，分享此文章</p>
+      </div>
+    
+    <!-- 二维码 END -->
+    
+      <!-- Utterances START -->
+      <div id="utterances"></div>
+      <script src="https://utteranc.es/client.js"
+        repo=""
+        issue-term="pathname"
+        theme="github-light"
+        crossorigin="anonymous"
+        async></script>    
+      <!-- Utterances END -->
+    
+  </article>
+  <!-- Article END -->
+  <!-- Catalog START -->
+  
+    <aside class="catalog-container">
+  <div class="toc-main">
+    <strong class="toc-title">Catalog</strong>
+    
+      <ol class="toc-nav"><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#MySQL%E9%94%81%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="toc-nav-text">MySQL锁的种类</span></a></li><li class="toc-nav-item toc-nav-level-2"><a class="toc-nav-link" href="#MySQL%E5%8A%A0%E9%94%81%E6%B5%81%E7%A8%8B"><span class="toc-nav-text">MySQL加锁流程</span></a><ol class="toc-nav-child"><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E4%BB%80%E4%B9%88%E8%AF%AD%E5%8F%A5%E4%BC%9A%E5%8A%A0%E9%94%81%EF%BC%9F"><span class="toc-nav-text">什么语句会加锁？</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E7%AD%89%E5%80%BC%E6%9F%A5%E8%AF%A2"><span class="toc-nav-text">唯一索引等值查询</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E7%9A%84%E8%8C%83%E5%9B%B4%E6%9F%A5%E8%AF%A2"><span class="toc-nav-text">唯一索引的范围查询</span></a></li><li class="toc-nav-item toc-nav-level-3"><a class="toc-nav-link" href="#%E9%9D%9E%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95%E7%AD%89%E5%80%BC%E6%9F%A5%E8%AF%A2"><span class="toc-nav-text">非唯一索引等值查询</span></a></li></ol></li></ol>
+    
+  </div>
+</aside>
+  
+  <!-- Catalog END -->
+</main>
+
+<script>
+  (function () {
+    var url = 'http://example.com/2023/10/03/MySQL锁机制/';
+    var banner = ''
+    if (banner !== '' && banner !== 'undefined' && banner !== 'null') {
+      $('#article-banner').css({
+        'background-image': 'url(' + banner + ')'
+      })
+    } else {
+      $('#article-banner').geopattern(url)
+    }
+    $('.header').removeClass('fixed-header')
+
+    // error image
+    $(".markdown-content img").on('error', function() {
+      $(this).attr('src', '/css/images/error_icon.png')
+      $(this).css({
+        'cursor': 'default'
+      })
+    })
+
+    // zoom image
+    $(".markdown-content img").on('click', function() {
+      var src = $(this).attr('src')
+      if (src !== '/css/images/error_icon.png') {
+        var imageW = $(this).width()
+        var imageH = $(this).height()
+
+        var zoom = ($(window).width() * 0.95 / imageW).toFixed(2)
+        zoom = zoom < 1 ? 1 : zoom
+        zoom = zoom > 2 ? 2 : zoom
+        var transY = (($(window).height() - imageH) / 2).toFixed(2)
+
+        $('body').append('<div class="image-view-wrap"><div class="image-view-inner"><img src="'+ src +'" /></div></div>')
+        $('.image-view-wrap').addClass('wrap-active')
+        $('.image-view-wrap img').css({
+          'width': `${imageW}`,
+          'transform': `translate3d(0, ${transY}px, 0) scale3d(${zoom}, ${zoom}, 1)`
+        })
+        $('html').css('overflow', 'hidden')
+
+        $('.image-view-wrap').on('click', function() {
+          $(this).remove()
+          $('html').attr('style', '')
+        })
+      }
+    })
+  })();
+</script>
+
+
+  <script>
+    var qr = new QRious({
+      element: document.getElementById('share-qrcode'),
+      value: document.location.href
+    });
+  </script>
+
+
+
+
+
+
+    <div class="scroll-top">
+  <span class="arrow-icon"></span>
+</div>
+    <footer class="app-footer">
+  <p class="copyright">
+    &copy; 2023 | Proudly powered by <a href="https://hexo.io" target="_blank">Hexo</a>
+    <br>
+    Theme by <a target="_blank" rel="noopener" href="https://github.com/yanm1ng">yanm1ng</a>
+    
+  </p>
+</footer>
+
+<script>
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+</script>
+<script>
+  async("//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js", function(){
+    FastClick.attach(document.body);
+  })
+</script>
+
+<script>
+  var hasLine = 'true';
+  async("//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js", function(){
+    $('figure pre').each(function(i, block) {
+      var figure = $(this).parents('figure');
+      if (hasLine === 'false') {
+        figure.find('.gutter').hide();
+      }
+      hljs.configure({useBR: true});
+      var lang = figure.attr('class').split(' ')[1] || 'code';
+      var codeHtml = $(this).html();
+      var codeTag = document.createElement('code');
+      codeTag.className = lang;
+      codeTag.innerHTML = codeHtml;
+      $(this).attr('class', '').empty().html(codeTag);
+      figure.attr('data-lang', lang.toUpperCase());
+      hljs.highlightBlock(block);
+    });
+  })
+</script>
+<!-- Baidu Tongji -->
+
+
+<script src="/js/script.js"></script>
+
+
+  </body>
+</html>
